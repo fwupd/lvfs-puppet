@@ -1,0 +1,11 @@
+# replace these with actual values
+$dbusername = 'lvfs'
+$dbpassword = 'lvfs'
+$lvfs_secret_key = 'xxx'
+$lvfs_revision = 'master'
+$munin_username = 'admin'
+$munin_password = 'admin'
+$server_baseurl = 'http://localhost'
+$server_hostname = 'localhost'
+$server_ip = '127.0.0.1'
+$using_ssl = False
