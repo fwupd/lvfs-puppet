@@ -109,9 +109,8 @@ max_connect_errors = 1000
     require => Package['mariadb-server'],
 }
 cron { 'mysqldump':
-    command => '/usr/bin/mysqldump lvfs > /var/www/lvfs/backup/lvfs_$( date +"\%Y\%m\%d" ).sql',
+    command => '/usr/bin/mysqldump lvfs | gzip > /var/www/lvfs/backup/lvfs_$( date +"\%Y\%m\%d" ).sql.gz',
     user    => 'root',
-    weekday => 'Sun',
     hour    => 0,
     minute  => 0,
     require => Package['mariadb-server'],
