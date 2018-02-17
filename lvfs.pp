@@ -86,6 +86,9 @@ package { 'python-flask-wtf':
 package { 'python-blinker':
     ensure => installed,
 }
+package { 'python-sqlalchemy':
+    ensure => installed,
+}
 
 # required for the PKCS#7 support
 package { 'gnutls-utils':
