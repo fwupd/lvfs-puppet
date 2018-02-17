@@ -59,9 +59,6 @@ REMEMBER_COOKIE_SECURE = ${using_ssl}
 package { 'bsdtar':
     ensure => installed,
 }
-package { 'cabextract':
-    ensure => installed,
-}
 package { 'git':
     ensure => installed,
 }
