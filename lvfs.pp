@@ -248,6 +248,9 @@ http {
         location /img/ {
             alias /var/www/lvfs/admin/app/static/img/;
         }
+        location /uploads/ {
+            alias /var/www/lvfs/admin/uploads/;
+        }
         location /downloads/firmware.xml.gz {
             alias /var/www/lvfs/downloads/firmware.xml.gz;
         }
