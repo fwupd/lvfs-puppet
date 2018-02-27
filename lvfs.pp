@@ -43,6 +43,7 @@ APP_NAME = 'lvfs'
 IP = '${server_ip}'
 PORT = 80
 DOWNLOAD_DIR = '/var/www/lvfs/downloads'
+UPLOAD_DIR = '/var/www/lvfs/uploads'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
 DATABASE_HOST = 'localhost'
 DATABASE_USERNAME = '${dbusername}'
