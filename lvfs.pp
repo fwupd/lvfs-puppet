@@ -90,6 +90,9 @@ package { 'python-blinker':
 package { 'python-sqlalchemy':
     ensure => installed,
 }
+package { 'python-humanize':
+    ensure => installed,
+}
 
 # required for the PKCS#7 support
 package { 'gnutls-utils':
