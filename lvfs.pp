@@ -233,7 +233,7 @@ http {
 
         # only allow http:// URIs
         if (\$scheme != \"https\") {
-            return 301 https://\$host\$request_uri;
+            return 301 https://\$server_name\$request_uri;
         }
 
         # support SSL using Let's Encrypt
