@@ -174,6 +174,7 @@ chmod-socket = 660
 logto = /var/log/uwsgi/%n.log
 stats = 127.0.0.1:9191
 processes = 4
+buffer-size = 65536
 ",
     require => Package['uwsgi'],
 }
