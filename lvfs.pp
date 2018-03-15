@@ -45,11 +45,7 @@ PORT = 80
 DOWNLOAD_DIR = '/var/www/lvfs/downloads'
 UPLOAD_DIR = '/var/www/lvfs/admin/uploads'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
-DATABASE_HOST = 'localhost'
-DATABASE_USERNAME = '${dbusername}'
-DATABASE_PASSWORD = '${dbpassword}'
-DATABASE_DB = 'lvfs'
-DATABASE_PORT = 3306
+SQLALCHEMY_DATABASE_URI = 'mysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8'
 SESSION_COOKIE_SECURE = ${using_ssl}
 REMEMBER_COOKIE_SECURE = ${using_ssl}
 ",
