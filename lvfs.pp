@@ -80,6 +80,9 @@ package { 'python2-flask-login':
 package { 'python-flask-wtf':
     ensure => installed,
 }
+package { 'python2-flask-migrate':
+    ensure => installed,
+}
 package { 'python-blinker':
     ensure => installed,
 }
