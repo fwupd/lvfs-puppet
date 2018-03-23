@@ -121,6 +121,20 @@ cron { 'mysqldump':
     minute  => 0,
     require => Package['mariadb-server'],
 }
+cron { 'sign-firmware':
+    command => 'cd /var/www/lvfs/admin; ./cron.py firmware >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    user    => 'uwsgi',
+    hour    => '*',
+    minute  => '*/5',
+    require => Vcsrepo['/var/www/lvfs/admin'],
+}
+cron { 'sign-metadata':
+    command => 'cd /var/www/lvfs/admin; ./cron.py firmware metadata >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
+    user    => 'uwsgi',
+    hour    => '*',
+    minute  => '*/30',
+    require => Vcsrepo['/var/www/lvfs/admin'],
+}
 service { 'mariadb':
     ensure => 'running',
     enable => true,
