@@ -35,7 +35,7 @@ file { '/var/www/lvfs/backup':
     require  => [ File['/var/www/lvfs'], Package['uwsgi'] ],
 }
 file { '/var/www/lvfs/admin/app/custom.cfg':
-    ensure  => 'present',
+    ensure  => 'file',
     replace => 'no',
     owner   => 'uwsgi',
     group   => 'uwsgi',
