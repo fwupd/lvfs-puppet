@@ -16,6 +16,12 @@ vcsrepo { '/var/www/lvfs/admin':
     group    => 'uwsgi',
     require  => [ File['/var/www/lvfs'], Package['uwsgi']],
 }
+file { '/var/www/lvfs/admin/deleted':
+    ensure   => 'directory',
+    owner    => 'uwsgi',
+    group    => 'uwsgi',
+    require  => [ Vcsrepo['/var/www/lvfs/admin'], Package['uwsgi'] ],
+}
 file { '/var/www/lvfs/downloads':
     ensure   => 'directory',
     owner    => 'uwsgi',
@@ -44,6 +50,7 @@ IP = '${server_ip}'
 PORT = 80
 DOWNLOAD_DIR = '/var/www/lvfs/downloads'
 UPLOAD_DIR = '/var/www/lvfs/admin/uploads'
+RESTORE_DIR = '/var/www/lvfs/admin/deleted'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
 SQLALCHEMY_DATABASE_URI = 'mysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8'
 SESSION_COOKIE_SECURE = ${using_ssl}
