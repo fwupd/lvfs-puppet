@@ -149,12 +149,6 @@ cron { 'sign-metadata':
     minute  => '*/30',
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
-cron { 'certbot':
-    command => 'certbot renew --post-hook "systemctl reload nginx"',
-    minute  => '30',
-    hour    => '9',
-    require => Package['certbot'],
-}
 service { 'mariadb':
     ensure => 'running',
     enable => true,
@@ -332,9 +326,6 @@ service { 'munin-node':
     require  => Package["munin"],
 }
 package { 'httpd-tools':
-    ensure => installed,
-}
-package { 'certbot':
     ensure => installed,
 }
 exec { "munin-htpasswd":
