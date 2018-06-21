@@ -9,3 +9,6 @@ $server_baseurl = 'http://localhost'
 $server_hostname = 'localhost'
 $server_ip = '127.0.0.1'
 $using_ssl = False
+$mail_username = 'xxx'
+$mail_password = 'xxx'
+$mail_server = 'xxx'

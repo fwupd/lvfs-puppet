@@ -55,6 +55,13 @@ KEYRING_DIR = '/var/www/lvfs/.gnupg'
 SQLALCHEMY_DATABASE_URI = 'mysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8'
 SESSION_COOKIE_SECURE = ${using_ssl}
 REMEMBER_COOKIE_SECURE = ${using_ssl}
+MAIL_SERVER = '${mail_server}'
+MAIL_PORT = 465
+MAIL_USE_TLS = False
+MAIL_USE_SSL = True
+MAIL_USERNAME = '${mail_username}'
+MAIL_PASSWORD = '${mail_password}'
+MAIL_DEFAULT_SENDER = ('LVFS Admin Team', '${mail_username}')
 ",
     require => [ File['/var/www/lvfs'], Package['uwsgi'], Vcsrepo['/var/www/lvfs/admin'] ],
 }
