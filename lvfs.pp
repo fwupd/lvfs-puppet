@@ -53,6 +53,7 @@ UPLOAD_DIR = '/var/www/lvfs/admin/uploads'
 RESTORE_DIR = '/var/www/lvfs/admin/deleted'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
 SQLALCHEMY_DATABASE_URI = 'mysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8'
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 SESSION_COOKIE_SECURE = ${using_ssl}
 REMEMBER_COOKIE_SECURE = ${using_ssl}
 MAIL_SERVER = '${mail_server}'
