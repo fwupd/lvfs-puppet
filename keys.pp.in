@@ -12,3 +12,6 @@ $using_ssl = False
 $mail_username = 'xxx'
 $mail_password = 'xxx'
 $mail_server = 'xxx'
+$secret_password_salt = 'xxx'
+$secret_addr_salt = 'xxx'
+$secret_vendor_salt = 'xxx'

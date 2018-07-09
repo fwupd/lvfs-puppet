@@ -44,6 +44,9 @@ import os
 DEBUG = False
 PROPAGATE_EXCEPTIONS = True
 SECRET_KEY = '${lvfs_secret_key}'
+SECRET_PASSWORD_SALT = '${secret_password_salt}'
+SECRET_ADDR_SALT = '${secret_addr_salt}'
+SECRET_VENDOR_SALT = '${secret_vendor_salt}'
 HOST_NAME = 'localhost'
 APP_NAME = 'lvfs'
 IP = '${server_ip}'
