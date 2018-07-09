@@ -279,6 +279,34 @@ http {
             alias /var/www/.well-known/;
         }
 
+        # Prevent browsers from incorrectly detecting non-scripts as scripts
+        # https://wiki.mozilla.org/Security/Guidelines/Web_Security#X-Content-Type-Options
+        add_header X-Content-Type-Options nosniff;
+
+        # Prevents external sites from embedding this site in an iframe
+        # https://wiki.mozilla.org/Security/Guidelines/Web_Security#X-Frame-Options
+        add_header X-Frame-Options DENY;
+
+        # Block pages from loading when they detect reflected XSS attacks
+        # https://wiki.mozilla.org/Security/Guidelines/Web_Security#X-XSS-Protection
+        add_header X-XSS-Protection \"1; mode=block\";
+
+        # Never send the Referer header to preserve the users privacy
+        # https://wiki.mozilla.org/Security/Guidelines/Web_Security#Referrer_Policy
+        add_header Referrer-Policy no-referrer;
+
+        # Block site from being framed with X-Frame-Options
+        # https://wiki.mozilla.org/Security/Guidelines/Web_Security#X-Frame-Options
+        add_header X-Frame-Options DENY;
+
+        # Only connect to this site via HTTPS
+        # https://wiki.mozilla.org/Security/Guidelines/Web_Security#HTTP_Strict_Transport_Security
+        add_header Strict-Transport-Security \"max-age=63072000; includeSubDomains; preload\";
+
+        # Block pages from loading when they detect reflected XSS attacks
+        # https://wiki.mozilla.org/Security/Guidelines/Web_Security#Content_Security_Policy
+        add_header Content-Security-Policy \"default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maxcdn.bootstrapcdn.com https://code.jquery.com https://cdnjs.cloudflare.com; img-src 'self'; style-src 'self' https://maxcdn.bootstrapcdn.com; frame-ancestors 'none'\";
+
         # Load configuration files for the default server block.
         include /etc/nginx/default.d/*.conf;
 
