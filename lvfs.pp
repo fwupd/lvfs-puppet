@@ -60,12 +60,12 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 SESSION_COOKIE_SECURE = ${using_ssl}
 REMEMBER_COOKIE_SECURE = ${using_ssl}
 MAIL_SERVER = '${mail_server}'
-MAIL_PORT = 465
+MAIL_PORT = '${mail_port}'
 MAIL_USE_TLS = False
 MAIL_USE_SSL = True
 MAIL_USERNAME = '${mail_username}'
 MAIL_PASSWORD = '${mail_password}'
-MAIL_DEFAULT_SENDER = ('LVFS Admin Team', '${mail_username}')
+MAIL_DEFAULT_SENDER = ('LVFS Admin Team', '${mail_sender}')
 ",
     require => [ File['/var/www/lvfs'], Package['uwsgi'], Vcsrepo['/var/www/lvfs/admin'] ],
 }
