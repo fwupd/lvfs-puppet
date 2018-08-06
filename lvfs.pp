@@ -54,8 +54,9 @@ DOWNLOAD_DIR = '/var/www/lvfs/downloads'
 UPLOAD_DIR = '/var/www/lvfs/admin/uploads'
 RESTORE_DIR = '/var/www/lvfs/admin/deleted'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
-SQLALCHEMY_DATABASE_URI = 'mysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8'
+SQLALCHEMY_DATABASE_URI = 'mysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8mb4'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+MYSQL_DATABASE_CHARSET = 'utf8mb4'
 SESSION_COOKIE_SECURE = ${using_ssl}
 REMEMBER_COOKIE_SECURE = ${using_ssl}
 MAIL_SERVER = '${mail_server}'
