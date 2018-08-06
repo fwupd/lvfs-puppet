@@ -36,7 +36,6 @@ file { '/var/www/lvfs/backup':
 }
 file { '/var/www/lvfs/admin/app/custom.cfg':
     ensure  => 'file',
-    replace => 'no',
     owner   => 'uwsgi',
     group   => 'uwsgi',
     content => "# Managed by Puppet, DO NOT EDIT
