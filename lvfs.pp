@@ -178,7 +178,7 @@ SOURCE /var/www/lvfs/admin/schema.sql
 }
 
 # use uWSGI
-package { 'uwsgi-plugin-python':
+package { 'uwsgi-plugin-python2':
     ensure => installed,
 }
 package { 'uwsgi':
@@ -357,7 +357,7 @@ service { 'nginx':
 package { 'munin':
     ensure => installed,
 }
-package { 'munin-ruby-plugins':
+package { 'munin-plugins-ruby':
     ensure => installed,
 }
 service { 'munin-node':
