@@ -117,6 +117,9 @@ package { 'python-sqlalchemy':
 package { 'python-humanize':
     ensure => installed,
 }
+package { 'python-lxml':
+    ensure => installed,
+}
 
 # required for the PKCS#7 support
 package { 'gnutls-utils':
