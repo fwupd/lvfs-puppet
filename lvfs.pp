@@ -325,9 +325,11 @@ http {
         }
         location /downloads/firmware.xml.gz {
             alias /var/www/lvfs/downloads/firmware.xml.gz;
+            expires 20m;
         }
         location /downloads/firmware.xml.gz.asc {
             alias /var/www/lvfs/downloads/firmware.xml.gz.asc;
+            expires 20m;
         }
         location / {
             uwsgi_pass unix:///run/uwsgi/lvfs.socket;
