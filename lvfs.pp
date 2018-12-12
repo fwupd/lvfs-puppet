@@ -87,9 +87,6 @@ package { 'git':
 package { 'MySQL-python':
     ensure => installed,
 }
-package { 'python2-boto3':
-    ensure => installed,
-}
 package { 'python2-gnupg':
     ensure => installed,
 }
