@@ -146,6 +146,13 @@ cron { 'mysqldump':
     minute  => 0,
     require => Package['mariadb-server'],
 }
+cron { 'purgedelete':
+    command => 'cd /var/www/lvfs/admin; ./cron.py purgedelete >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    user    => 'uwsgi',
+    hour    => 0,
+    minute  => 0,
+    require => Vcsrepo['/var/www/lvfs/admin'],
+}
 cron { 'sign-firmware':
     command => 'cd /var/www/lvfs/admin; ./cron.py firmware >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
     user    => 'uwsgi',
