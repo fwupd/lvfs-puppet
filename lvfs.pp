@@ -160,6 +160,13 @@ cron { 'sign-firmware':
     minute  => '*/5',
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
+cron { 'fwchecks':
+    command => 'cd /var/www/lvfs/admin; ./cron.py fwchecks >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    user    => 'uwsgi',
+    hour    => '*',
+    minute  => '*/5',
+    require => Vcsrepo['/var/www/lvfs/admin'],
+}
 cron { 'sign-metadata':
     command => 'cd /var/www/lvfs/admin; ./cron.py firmware metadata >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
     user    => 'uwsgi',
