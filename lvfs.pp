@@ -407,6 +407,46 @@ location /munin/ {
     require => Package['nginx'],
 }
 
+# antivirus
+package { 'clamav-update':
+    ensure => installed,
+}
+package { 'clamav':
+    ensure => installed,
+}
+package { 'clamav-server-systemd':
+    ensure => installed,
+}
+exec { 'uwsgi virusgroup membership':
+    unless => "/bin/getent group virusgroup|/bin/cut -d: -f4|/bin/grep -q uwsgi",
+    command => "/usr/sbin/usermod -a -G virusgroup uwsgi",
+    require => Package['uwsgi'],
+}
+file { '/etc/clamd.d/scan.conf':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+LogSyslog yes
+LocalSocket /var/run/clamd.scan/clamd.sock
+LocalSocketGroup virusgroup
+FixStaleSocket yes
+User clamscan
+DetectPUA yes
+DisableCertCheck yes
+ScanSWF no
+ScanMail no
+ScanPartialMessages no
+ScanArchive yes
+MaxFileSize 100M
+MaxEmbeddedPE 100M
+",
+    require => Package['clamav'],
+}
+service { 'clamd@scan':
+    ensure => 'running',
+    enable => true,
+    require => [ Package['clamav'], File['/etc/clamd.d/scan.conf'] ],
+}
+
 # fixes permissions after a key has been imported
 file { '/var/www/lvfs/.gnupg':
     ensure   => 'directory',
