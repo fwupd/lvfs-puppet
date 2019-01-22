@@ -77,45 +77,24 @@ MAIL_DEFAULT_SENDER = ('LVFS Admin Team', '${mail_sender}')
     require => [ File['/var/www/lvfs'], Package['uwsgi'], Vcsrepo['/var/www/lvfs/admin'] ],
 }
 
-# all the Flask request
+# python deps are installed using requirements.txt where possible
 package { 'bsdtar':
     ensure => installed,
 }
 package { 'git':
     ensure => installed,
 }
-package { 'MySQL-python':
+package { 'python2-psutil':
     ensure => installed,
 }
-package { 'python2-gnupg':
+package { 'python2-pip':
     ensure => installed,
 }
-#package { 'python2-mysql':
-#    ensure => installed,
-#}
-package { 'python-flask':
-    ensure => installed,
-}
-package { 'python2-flask-login':
-    ensure => installed,
-}
-package { 'python-flask-wtf':
-    ensure => installed,
-}
-package { 'python2-flask-migrate':
-    ensure => installed,
-}
-package { 'python-blinker':
-    ensure => installed,
-}
-package { 'python-sqlalchemy':
-    ensure => installed,
-}
-package { 'python-humanize':
-    ensure => installed,
-}
-package { 'python-lxml':
-    ensure => installed,
+exec { 'pip_requirements_install':
+    command     => 'pip2 install -r /var/www/lvfs/admin/requirements.txt',
+    path        => '/usr/bin',
+    refreshonly => true,
+    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python2-pip'] ],
 }
 
 # required for the PKCS#7 support
