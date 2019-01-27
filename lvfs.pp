@@ -305,7 +305,7 @@ http {
 
         # Block pages from loading when they detect reflected XSS attacks
         # https://wiki.mozilla.org/Security/Guidelines/Web_Security#Content_Security_Policy
-        add_header Content-Security-Policy \"default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maxcdn.bootstrapcdn.com https://code.jquery.com https://cdnjs.cloudflare.com; img-src 'self'; style-src 'self' https://maxcdn.bootstrapcdn.com; frame-ancestors 'none'\";
+        add_header Content-Security-Policy \"default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://stackpath.bootstrapcdn.com https://code.jquery.com https://cdnjs.cloudflare.com; img-src 'self'; style-src 'self' https://maxcdn.bootstrapcdn.com; frame-ancestors 'none'\";
 
         # Load configuration files for the default server block.
         include /etc/nginx/default.d/*.conf;
