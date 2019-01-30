@@ -90,12 +90,20 @@ package { 'python2-psutil':
 package { 'python2-pip':
     ensure => installed,
 }
-exec { 'pip_requirements_install':
-    command     => 'pip2 install -r /var/www/lvfs/admin/requirements.txt',
-    path        => '/usr/bin',
-    refreshonly => true,
-    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python2-pip'] ],
+package { 'python-virtualenv':
+    ensure => installed,
 }
+exec { 'virtualenv_create':
+    command     => '/usr/bin/virtualenv /usr/lib/lvfs/env',
+    refreshonly => true,
+    require     => [ Package['python-virtualenv'] ],
+}
+#exec { 'pip_requirements_install':
+#    command     => 'pip2 install -r /var/www/lvfs/admin/requirements.txt',
+#    path        => '/usr/bin',
+#    refreshonly => true,
+#    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python2-pip'], Exec['virtualenv_create'] ],
+#}
 
 # required for the PKCS#7 support
 package { 'gnutls-utils':
@@ -196,6 +204,7 @@ file { '/etc/uwsgi.d/lvfs.ini':
     content => "# Managed by Puppet, DO NOT EDIT
 [uwsgi]
 chdir = /var/www/lvfs/admin
+virtualenv = /usr/lib/lvfs/env
 module = app:app
 plugins = python
 uid = uwsgi
