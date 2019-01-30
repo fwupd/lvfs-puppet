@@ -100,7 +100,7 @@ exec { 'pip_requirements_install':
     command     => 'pip3 install -r /var/www/lvfs/admin/requirements.txt',
     path        => '/usr/bin',
     refreshonly => true,
-    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python3-pip'] ],
+    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python34-pip'] ],
 }
 
 # required for the PKCS#7 support
