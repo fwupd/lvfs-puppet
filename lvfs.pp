@@ -61,7 +61,7 @@ UPLOAD_DIR = '/var/www/lvfs/admin/uploads'
 RESTORE_DIR = '/var/www/lvfs/admin/deleted'
 HWINFO_DIR = '/var/www/lvfs/admin/hwinfo'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
-SQLALCHEMY_DATABASE_URI = 'mysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8mb4'
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8mb4&unix_socket=/var/lib/mysql/mysql.sock'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 MYSQL_DATABASE_CHARSET = 'utf8mb4'
 SESSION_COOKIE_SECURE = ${using_ssl}
