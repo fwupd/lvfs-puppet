@@ -84,17 +84,23 @@ package { 'bsdtar':
 package { 'git':
     ensure => installed,
 }
-package { 'python2-psutil':
+package { 'python34-psutil':
     ensure => installed,
 }
-package { 'python2-pip':
+package { 'python34-pip':
+    ensure => installed,
+}
+package { 'python34-gobject':
+    ensure => installed,
+}
+package { 'python34-pylint':
     ensure => installed,
 }
 exec { 'pip_requirements_install':
-    command     => 'pip2 install -r /var/www/lvfs/admin/requirements.txt',
+    command     => 'pip3 install -r /var/www/lvfs/admin/requirements.txt',
     path        => '/usr/bin',
     refreshonly => true,
-    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python2-pip'] ],
+    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python3-pip'] ],
 }
 
 # required for the PKCS#7 support
@@ -171,7 +177,7 @@ SOURCE /var/www/lvfs/admin/schema.sql
 }
 
 # use uWSGI
-package { 'uwsgi-plugin-python2':
+package { 'uwsgi-plugin-python34':
     ensure => installed,
 }
 package { 'uwsgi':
