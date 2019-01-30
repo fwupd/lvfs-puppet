@@ -93,6 +93,15 @@ package { 'python2-pip':
 package { 'python-virtualenv':
     ensure => installed,
 }
+package { 'mariadb-devel':
+    ensure => installed,
+}
+package { 'cairo-gobject-devel':
+    ensure => installed,
+}
+package { 'gobject-introspection-devel':
+    ensure => installed,
+}
 exec { 'virtualenv_create':
     command     => '/usr/bin/virtualenv /usr/lib/lvfs/env',
     refreshonly => true,
