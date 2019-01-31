@@ -107,12 +107,12 @@ exec { 'virtualenv_create':
     refreshonly => true,
     require     => [ Package['python34-virtualenv'] ],
 }
-#exec { 'pip_requirements_install':
-#    command     => 'pip2 install -r /var/www/lvfs/admin/requirements.txt',
-#    path        => '/usr/bin',
-#    refreshonly => true,
-#    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python34-pip'], Exec['virtualenv_create'] ],
-#}
+exec { 'pip_requirements_install':
+    command     => '/usr/lib/lvfs/env34/bin/pip3 install -r /var/www/lvfs/admin/requirements.txt',
+    path        => '/usr/bin',
+    refreshonly => true,
+    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python34-pip'], Exec['virtualenv_create'] ],
+}
 
 # required for the PKCS#7 support
 package { 'gnutls-utils':
