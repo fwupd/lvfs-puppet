@@ -188,7 +188,7 @@ SOURCE /var/www/lvfs/admin/schema.sql
 }
 
 # use uWSGI
-package { 'uwsgi-plugin-python3':
+package { 'uwsgi-plugin-python34':
     ensure => installed,
 }
 package { 'uwsgi':
