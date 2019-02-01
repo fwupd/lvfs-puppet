@@ -143,28 +143,28 @@ cron { 'mysqldump':
     require => Package['mariadb-server'],
 }
 cron { 'purgedelete':
-    command => 'LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py purgedelete >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py purgedelete >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
     user    => 'uwsgi',
     hour    => 0,
     minute  => 0,
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'sign-firmware':
-    command => 'LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py firmware >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py firmware >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
     user    => 'uwsgi',
     hour    => '*',
     minute  => '*/5',
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'fwchecks':
-    command => 'LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py fwchecks >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py fwchecks >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
     user    => 'uwsgi',
     hour    => '*',
     minute  => '*/5',
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'sign-metadata':
-    command => 'LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py firmware metadata >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py firmware metadata >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
     user    => 'uwsgi',
     hour    => '*',
     minute  => '*/30',
