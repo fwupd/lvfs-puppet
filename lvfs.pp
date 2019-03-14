@@ -225,6 +225,7 @@ stats = 127.0.0.1:9191
 processes = 4
 buffer-size = 65536
 enable-threads = true
+harakiri = 180
 ",
     require => Package['uwsgi'],
 }
@@ -343,6 +344,8 @@ http {
             expires 20m;
         }
         location / {
+            uwsgi_read_timeout 180s;
+            uwsgi_send_timeout 180s;
             uwsgi_pass unix:///run/uwsgi/lvfs.socket;
             include uwsgi_params;
         }
