@@ -149,6 +149,13 @@ cron { 'purgedelete':
     minute  => 0,
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
+cron { 'stats':
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py stats >> /var/log/uwsgi/lvfs-stats.log 2>&1',
+    user    => 'uwsgi',
+    minute  => 0,
+    hour    => 2,
+    require => Vcsrepo['/var/www/lvfs/admin'],
+}
 cron { 'sign-firmware':
     command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py firmware >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
     user    => 'uwsgi',
