@@ -103,7 +103,7 @@ package { 'gobject-introspection-devel':
     ensure => installed,
 }
 exec { 'virtualenv_create':
-    command     => '/usr/bin/virtualenv /usr/lib/lvfs/env',
+    command     => '/usr/bin/virtualenv /usr/lib/lvfs/env36',
     refreshonly => true,
     require     => [ Package['python36-virtualenv'] ],
 }
