@@ -84,13 +84,13 @@ package { 'bsdtar':
 package { 'git':
     ensure => installed,
 }
-package { 'python34-psutil':
+package { 'python36-psutil':
     ensure => installed,
 }
-package { 'python34-pip':
+package { 'python36-pip':
     ensure => installed,
 }
-package { 'python34-virtualenv':
+package { 'python36-virtualenv':
     ensure => installed,
 }
 package { 'mariadb-devel':
@@ -105,13 +105,13 @@ package { 'gobject-introspection-devel':
 exec { 'virtualenv_create':
     command     => '/usr/bin/virtualenv /usr/lib/lvfs/env',
     refreshonly => true,
-    require     => [ Package['python34-virtualenv'] ],
+    require     => [ Package['python36-virtualenv'] ],
 }
 exec { 'pip_requirements_install':
-    command     => '/usr/lib/lvfs/env34/bin/pip3 install -r /var/www/lvfs/admin/requirements.txt',
+    command     => '/usr/lib/lvfs/env36/bin/pip3 install -r /var/www/lvfs/admin/requirements.txt',
     path        => '/usr/bin',
     refreshonly => true,
-    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python34-pip'], Exec['virtualenv_create'] ],
+    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python36-pip'], Exec['virtualenv_create'] ],
 }
 
 # required for the PKCS#7 support
@@ -143,35 +143,35 @@ cron { 'mysqldump':
     require => Package['mariadb-server'],
 }
 cron { 'purgedelete':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py purgedelete >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py purgedelete >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
     user    => 'uwsgi',
     hour    => 0,
     minute  => 0,
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'stats':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py stats >> /var/log/uwsgi/lvfs-stats.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py stats >> /var/log/uwsgi/lvfs-stats.log 2>&1',
     user    => 'uwsgi',
     minute  => 0,
     hour    => 2,
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'sign-firmware':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py firmware >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py firmware >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
     user    => 'uwsgi',
     hour    => '*',
     minute  => '*/5',
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'fwchecks':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py fwchecks >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py fwchecks >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
     user    => 'uwsgi',
     hour    => '*',
     minute  => '*/5',
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'sign-metadata':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env34/bin/python3 /var/www/lvfs/admin/cron.py firmware metadata >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py firmware metadata >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
     user    => 'uwsgi',
     hour    => '*',
     minute  => '*/30',
@@ -195,7 +195,7 @@ SOURCE /var/www/lvfs/admin/schema.sql
 }
 
 # use uWSGI
-package { 'uwsgi-plugin-python34':
+package { 'uwsgi-plugin-python36':
     ensure => installed,
 }
 package { 'uwsgi':
@@ -220,9 +220,9 @@ file { '/etc/uwsgi.d/lvfs.ini':
     content => "# Managed by Puppet, DO NOT EDIT
 [uwsgi]
 chdir = /var/www/lvfs/admin
-virtualenv = /usr/lib/lvfs/env34
+virtualenv = /usr/lib/lvfs/env36
 module = app:app
-plugins = python34
+plugins = python36
 uid = uwsgi
 gid = uwsgi
 socket = /run/uwsgi/%n.socket
