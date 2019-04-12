@@ -132,6 +132,9 @@ max_allowed_packet=60M
 wait_timeout = 6000000
 skip-name-resolve
 max_connect_errors = 1000
+slow-query-log = 1
+slow-query-log-file = /var/log/mariadb/slow.log
+long_query_time = 1
 ",
     require => Package['mariadb-server'],
 }
