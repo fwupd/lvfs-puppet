@@ -16,7 +16,7 @@ vcsrepo { '/var/www/lvfs/admin':
     group    => 'uwsgi',
     require  => [ File['/var/www/lvfs'], Package['uwsgi']],
 }
-file { '/var/www/lvfs/admin/deleted':
+file { '/var/www/lvfs/deleted':
     ensure   => 'directory',
     owner    => 'uwsgi',
     group    => 'uwsgi',
