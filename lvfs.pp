@@ -58,7 +58,7 @@ IP = '${server_ip}'
 PORT = 80
 DOWNLOAD_DIR = '/var/www/lvfs/downloads'
 UPLOAD_DIR = '/var/www/lvfs/admin/uploads'
-RESTORE_DIR = '/var/www/lvfs/admin/deleted'
+RESTORE_DIR = '/var/www/lvfs/deleted'
 HWINFO_DIR = '/var/www/lvfs/admin/hwinfo'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8mb4&unix_socket=/var/lib/mysql/mysql.sock'
