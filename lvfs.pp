@@ -406,6 +406,13 @@ location /munin/static/ {
     alias /etc/munin/static/;
     expires modified +1w;
 }
+file { '/etc/munin/conf.d/local.conf':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+[www.fwupd.org]
+    address 127.0.0.1
+    use_node_name yes
+}
 
 location /munin/ {
     auth_basic Restricted;
