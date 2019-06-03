@@ -415,6 +415,15 @@ exec { "munin-htpasswd":
     unless      => "/usr/bin/test -s /etc/munin/munin-htpasswd",
     require     => [ Package["munin"], Package['httpd-tools'] ],
 }
+file { '/etc/munin/conf.d/local.conf':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+[www.fwupd.org]
+    address 127.0.0.1
+    use_node_name yes
+",
+    require => Package['munin'],
+}
 file { '/etc/nginx/default.d/munin.conf':
     ensure => "file",
     content => "# Managed by Puppet, DO NOT EDIT
