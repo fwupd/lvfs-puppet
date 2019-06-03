@@ -34,6 +34,12 @@ file { '/var/www/lvfs/downloads':
     group    => 'uwsgi',
     require  => [ File['/var/www/lvfs'], Package['uwsgi'] ],
 }
+file { '/var/www/lvfs/shards':
+    ensure   => 'directory',
+    owner    => 'uwsgi',
+    group    => 'uwsgi',
+    require  => [ File['/var/www/lvfs'], Package['uwsgi'] ],
+}
 file { '/var/www/lvfs/backup':
     ensure  => 'directory',
     owner   => 'uwsgi',
@@ -59,6 +65,7 @@ PORT = 80
 DOWNLOAD_DIR = '/var/www/lvfs/downloads'
 UPLOAD_DIR = '/var/www/lvfs/admin/uploads'
 RESTORE_DIR = '/var/www/lvfs/deleted'
+SHARD_DIR = '/var/www/lvfs/shards'
 HWINFO_DIR = '/var/www/lvfs/admin/hwinfo'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8mb4&unix_socket=/var/lib/mysql/mysql.sock'
@@ -178,6 +185,12 @@ cron { 'sign-metadata':
     user    => 'uwsgi',
     hour    => '*',
     minute  => '*/30',
+    require => Vcsrepo['/var/www/lvfs/admin'],
+}
+cron { 'shards-hardlink':
+    command => 'rdfind -makehardlinks true -makesymlinks false /var/www/lvfs/admin/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
+    user    => 'uwsgi',
+    hour    => 3,
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 service { 'mariadb':
@@ -377,6 +390,9 @@ service { 'nginx':
     ensure => 'running',
     enable => true,
     require => [ Package['nginx'], Package['uwsgi'] ],
+}
+package { 'rdfind':
+    ensure => installed,
 }
 
 # allow monitoring server
