@@ -188,8 +188,9 @@ cron { 'sign-metadata':
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'shards-hardlink':
-    command => 'rdfind -makehardlinks true -makesymlinks false /var/www/lvfs/admin/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
+    command => 'rdfind -makehardlinks true -makesymlinks false /var/www/lvfs/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
     user    => 'uwsgi',
+    minute  => 0,
     hour    => 3,
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
