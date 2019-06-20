@@ -46,7 +46,7 @@ file { '/var/www/lvfs/backup':
     group   => 'uwsgi',
     require  => [ File['/var/www/lvfs'], Package['uwsgi'] ],
 }
-file { '/var/www/lvfs/admin/app/custom.cfg':
+file { '/var/www/lvfs/admin/lvfs/custom.cfg':
     ensure  => 'file',
     owner   => 'uwsgi',
     group   => 'uwsgi',
@@ -153,35 +153,35 @@ cron { 'mysqldump':
     require => Package['mariadb-server'],
 }
 cron { 'purgedelete':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py purgedelete >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py purgedelete >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
     user    => 'uwsgi',
     hour    => 0,
     minute  => 0,
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'stats':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py stats >> /var/log/uwsgi/lvfs-stats.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py stats >> /var/log/uwsgi/lvfs-stats.log 2>&1',
     user    => 'uwsgi',
     minute  => 0,
     hour    => 2,
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'sign-firmware':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py firmware >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py firmware >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
     user    => 'uwsgi',
     hour    => '*',
     minute  => '*/5',
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'fwchecks':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py fwchecks >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py fwchecks >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
     user    => 'uwsgi',
     hour    => '*',
     minute  => '*/5',
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'sign-metadata':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/app/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py firmware metadata >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py firmware metadata >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
     user    => 'uwsgi',
     hour    => '*',
     minute  => '*/30',
@@ -354,7 +354,7 @@ http {
         include /etc/nginx/default.d/*.conf;
 
         location /img/ {
-            alias /var/www/lvfs/admin/app/static/img/;
+            alias /var/www/lvfs/admin/lvfs/static/img/;
         }
         location /uploads/ {
             alias /var/www/lvfs/admin/uploads/;
@@ -380,7 +380,7 @@ http {
 
         error_page 500 502 503 504 /50x.html;
             location = /50x.html {
-            alias /var/www/lvfs/admin/app/templates/50x.html;
+            alias /var/www/lvfs/admin/lvfs/templates/50x.html;
         }
     }
 }
