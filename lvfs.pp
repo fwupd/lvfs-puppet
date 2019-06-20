@@ -238,7 +238,7 @@ file { '/etc/uwsgi.d/lvfs.ini':
 [uwsgi]
 chdir = /var/www/lvfs/admin
 virtualenv = /usr/lib/lvfs/env36
-module = app:app
+module = lvfs:app
 plugins = python36
 uid = uwsgi
 gid = uwsgi
