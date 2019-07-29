@@ -334,9 +334,9 @@ http {
         # https://wiki.mozilla.org/Security/Guidelines/Web_Security#X-XSS-Protection
         add_header X-XSS-Protection \"1; mode=block\";
 
-        # Never send the Referer header to preserve the users privacy
+        # Restrict the Referer header to preserve the users privacy
         # https://wiki.mozilla.org/Security/Guidelines/Web_Security#Referrer_Policy
-        add_header Referrer-Policy no-referrer;
+        add_header Referrer-Policy same-origin;
 
         # Block site from being framed with X-Frame-Options
         # https://wiki.mozilla.org/Security/Guidelines/Web_Security#X-Frame-Options
