@@ -153,7 +153,7 @@ cron { 'mysqldump':
     require => Package['mariadb-server'],
 }
 cron { 'purgedelete':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py purgedelete >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py purgedelete >> /var/log/uwsgi/lvfs-purgedelete.log 2>&1',
     user    => 'uwsgi',
     hour    => 0,
     minute  => 0,
@@ -174,7 +174,7 @@ cron { 'sign-firmware':
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'fwchecks':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py fwchecks >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py fwchecks >> /var/log/uwsgi/lvfs-fwchecks.log 2>&1',
     user    => 'uwsgi',
     hour    => '*',
     minute  => '*/5',
