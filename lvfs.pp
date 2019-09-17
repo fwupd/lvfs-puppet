@@ -183,8 +183,15 @@ cron { 'fwchecks':
 cron { 'sign-metadata':
     command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py firmware metadata >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
     user    => 'uwsgi',
+    hour    => '*/4',
+    minute  => '0',
+    require => Vcsrepo['/var/www/lvfs/admin'],
+}
+cron { 'sign-metadata-embargo':
+    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py firmware metadata embargo >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
+    user    => 'uwsgi',
     hour    => '*',
-    minute  => '*/30',
+    minute  => '*/5',
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'shards-hardlink':
