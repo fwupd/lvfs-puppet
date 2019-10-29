@@ -16,7 +16,7 @@ vcsrepo { '/var/www/lvfs/admin':
     group    => 'uwsgi',
     require  => [ File['/var/www/lvfs'], Package['uwsgi']],
 }
-file { '/var/www/lvfs/deleted':
+file { '/mnt/firmware/deleted':
     ensure   => 'directory',
     owner    => 'uwsgi',
     group    => 'uwsgi',
@@ -28,13 +28,13 @@ file { '/var/www/lvfs/admin/hwinfo':
     group    => 'uwsgi',
     require  => [ Vcsrepo['/var/www/lvfs/admin'], Package['uwsgi'] ],
 }
-file { '/var/www/lvfs/downloads':
+file { '/mnt/firmware/downloads':
     ensure   => 'directory',
     owner    => 'uwsgi',
     group    => 'uwsgi',
     require  => [ File['/var/www/lvfs'], Package['uwsgi'] ],
 }
-file { '/var/www/lvfs/shards':
+file { '/mnt/firmware/shards':
     ensure   => 'directory',
     owner    => 'uwsgi',
     group    => 'uwsgi',
@@ -62,10 +62,10 @@ HOST_NAME = '${server_fqdn}'
 APP_NAME = 'lvfs'
 IP = '${server_ip}'
 PORT = 80
-DOWNLOAD_DIR = '/var/www/lvfs/downloads'
+DOWNLOAD_DIR = '/mnt/firmware/downloads'
 UPLOAD_DIR = '/var/www/lvfs/admin/uploads'
-RESTORE_DIR = '/var/www/lvfs/deleted'
-SHARD_DIR = '/var/www/lvfs/shards'
+RESTORE_DIR = '/mnt/firmware/deleted'
+SHARD_DIR = '/mnt/firmware/shards'
 HWINFO_DIR = '/var/www/lvfs/admin/hwinfo'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8mb4&unix_socket=/var/lib/mysql/mysql.sock'
@@ -195,7 +195,7 @@ cron { 'sign-metadata-embargo':
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 cron { 'shards-hardlink':
-    command => 'rdfind -makehardlinks true -makesymlinks false /var/www/lvfs/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
+    command => 'rdfind -makehardlinks true -makesymlinks false /mnt/firmware/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
     user    => 'uwsgi',
     minute  => 0,
     hour    => 3,
@@ -367,11 +367,11 @@ http {
             alias /var/www/lvfs/admin/uploads/;
         }
         location /downloads/firmware.xml.gz {
-            alias /var/www/lvfs/downloads/firmware.xml.gz;
+            alias /mnt/firmware/downloads/firmware.xml.gz;
             expires 20m;
         }
         location /downloads/firmware.xml.gz.asc {
-            alias /var/www/lvfs/downloads/firmware.xml.gz.asc;
+            alias /mnt/firmware/downloads/firmware.xml.gz.asc;
             expires 20m;
         }
         location / {
