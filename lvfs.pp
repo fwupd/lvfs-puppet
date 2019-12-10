@@ -257,6 +257,7 @@ processes = 4
 buffer-size = 65536
 enable-threads = true
 harakiri = 180
+lazy-apps = true
 ",
     require => Package['uwsgi'],
 }
