@@ -319,6 +319,9 @@ http {
             return 301 https://\$server_name\$request_uri;
         }
 
+        # old REST routes
+        rewrite ^/lvfs/device/(.*)$ https://fwupd.org/lvfs/devices/$1 permanent;
+
         # support SSL using Let's Encrypt
         listen       443 ssl;
         ssl_certificate /etc/letsencrypt/live/${server_fqdn}/fullchain.pem;
