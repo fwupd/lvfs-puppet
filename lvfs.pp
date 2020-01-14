@@ -201,6 +201,15 @@ cron { 'shards-hardlink':
     hour    => 3,
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
+package { 's3cmd':
+    ensure => installed,
+}
+cron { 's3cmd-downloads':
+    command => 's3cmd sync /mnt/firmware/downloads s3://lvfs >> /var/log/uwsgi/lvfs-downloads.log 2>&1',
+    user    => 'root',
+    minute  => 0,
+    hour    => 4,
+}
 service { 'mariadb':
     ensure => 'running',
     enable => true,
