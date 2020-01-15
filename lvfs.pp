@@ -192,11 +192,6 @@ package { 'postgresql-server':
 package { 'postgresql-devel':
   ensure => installed,
 }
-service { 'postgresql':
-    ensure => 'running',
-    enable => true,
-    require => Package['postgresql-server'],
-}
 
 # use uWSGI
 package { 'uwsgi-plugin-python36':
