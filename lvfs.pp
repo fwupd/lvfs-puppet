@@ -441,9 +441,6 @@ package { 'clamav-update':
 package { 'clamav':
     ensure => installed,
 }
-package { 'clamav-server-systemd':
-    ensure => installed,
-}
 exec { 'uwsgi virusgroup membership':
     unless => "/bin/getent group virusgroup|/bin/cut -d: -f4|/bin/grep -q uwsgi",
     command => "/usr/sbin/usermod -a -G virusgroup uwsgi",
