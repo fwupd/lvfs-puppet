@@ -189,6 +189,9 @@ cron { 's3cmd-downloads':
 package { 'postgresql-server':
   ensure => installed,
 }
+package { 'postgresql-devel':
+  ensure => installed,
+}
 service { 'postgresql':
     ensure => 'running',
     enable => true,
