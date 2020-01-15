@@ -71,8 +71,8 @@ KEYRING_DIR = '/var/www/lvfs/.gnupg'
 SQLALCHEMY_DATABASE_URI = 'postgresql://${dbusername}:${dbpassword}@${dbserver}/lvfs'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ENGINE_OPTIONS = {
-    "pool_pre_ping": True,
-    "pool_recycle": 300,
+    'pool_pre_ping': True,
+    'pool_recycle': 300,
 }
 SESSION_COOKIE_SECURE = ${using_ssl}
 REMEMBER_COOKIE_SECURE = ${using_ssl}
