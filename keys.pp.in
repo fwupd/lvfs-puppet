@@ -1,6 +1,7 @@
 # replace these with actual values
 $dbusername = 'lvfs'
 $dbpassword = 'lvfs'
+$dbserver = 'localhost'
 $lvfs_secret_key = 'xxx'
 $lvfs_revision = 'master'
 $munin_username = 'admin'
