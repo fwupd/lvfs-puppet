@@ -68,9 +68,12 @@ RESTORE_DIR = '/mnt/firmware/deleted'
 SHARD_DIR = '/mnt/firmware/shards'
 HWINFO_DIR = '/var/www/lvfs/admin/hwinfo'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://${dbusername}:${dbpassword}@localhost/lvfs?charset=utf8mb4&unix_socket=/var/lib/mysql/mysql.sock'
+SQLALCHEMY_DATABASE_URI = 'postgresql://${dbusername}:${dbpassword}@${dbserver}/lvfs'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-MYSQL_DATABASE_CHARSET = 'utf8mb4'
+SQLALCHEMY_ENGINE_OPTIONS = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+}
 SESSION_COOKIE_SECURE = ${using_ssl}
 REMEMBER_COOKIE_SECURE = ${using_ssl}
 MAIL_SERVER = '${mail_server}'
@@ -100,9 +103,6 @@ package { 'python36-pip':
 package { 'python36-virtualenv':
     ensure => installed,
 }
-package { 'mariadb-devel':
-    ensure => installed,
-}
 package { 'cairo-gobject-devel':
     ensure => installed,
 }
@@ -126,32 +126,6 @@ package { 'gnutls-utils':
     ensure => installed,
 }
 
-# set up the database
-package { 'mariadb-server':
-  ensure => installed,
-}
-file { '/etc/my.cnf.d/00-lvfs.cnf':
-    ensure => "file",
-    content => "# Managed by Puppet, DO NOT EDIT
-[mysqld]
-skip-networking
-max_allowed_packet=60M
-wait_timeout = 6000000
-skip-name-resolve
-max_connect_errors = 1000
-slow-query-log = 1
-slow-query-log-file = /var/log/mariadb/slow.log
-long_query_time = 1
-",
-    require => Package['mariadb-server'],
-}
-cron { 'mysqldump':
-    command => '/usr/bin/mysqldump --single-transaction --default-character-set=utf8mb4 --ignore-table=lvfs.settings lvfs | gzip > /var/www/lvfs/backup/lvfs_$( date +"\%Y\%m\%d" ).sql.gz',
-    user    => 'root',
-    hour    => 0,
-    minute  => 0,
-    require => Package['mariadb-server'],
-}
 cron { 'purgedelete':
     command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py purgedelete >> /var/log/uwsgi/lvfs-purgedelete.log 2>&1',
     user    => 'uwsgi',
@@ -210,21 +184,15 @@ cron { 's3cmd-downloads':
     minute  => 0,
     hour    => 4,
 }
-service { 'mariadb':
+
+# set up the database
+package { 'postgresql-server':
+  ensure => installed,
+}
+service { 'postgresql':
     ensure => 'running',
     enable => true,
-    require => Package['mariadb-server'],
-}
-file { '/var/lib/mysql/lvfs.sql':
-    ensure => "file",
-    content => "
-CREATE DATABASE lvfs;
-CREATE USER '${dbusername}'@'localhost' IDENTIFIED BY '${dbpassword}';
-USE lvfs;
-GRANT ALL ON lvfs.* TO '${dbusername}'@'localhost';
-SOURCE /var/www/lvfs/admin/schema.sql
-",
-    require => [ Package['mariadb-server'], Vcsrepo['/var/www/lvfs/admin'] ],
+    require => Package['postgresql-server'],
 }
 
 # use uWSGI
