@@ -97,7 +97,7 @@ package { 'git':
 package { 'python36-psutil':
     ensure => installed,
 }
-package { 'python36-pip':
+package { 'python3-pip':
     ensure => installed,
 }
 package { 'python36-virtualenv':
