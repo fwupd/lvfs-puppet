@@ -94,7 +94,7 @@ package { 'git':
 package { 'python36-psutil':
     ensure => installed,
 }
-package { 'python36-pip':
+package { 'python3-pip':
     ensure => installed,
 }
 package { 'python36-virtualenv':
@@ -118,7 +118,7 @@ exec { 'pip_requirements_install':
     command     => '/usr/lib/lvfs/env36/bin/pip3 install -r /var/www/lvfs/admin/requirements.txt',
     path        => '/usr/bin',
     refreshonly => true,
-    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python36-pip'], Exec['virtualenv_create'] ],
+    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python3-pip'], Exec['virtualenv_create'] ],
 }
 
 # required for the PKCS#7 support
