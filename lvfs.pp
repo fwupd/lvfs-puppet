@@ -67,6 +67,7 @@ UPLOAD_DIR = '/var/www/lvfs/admin/uploads'
 RESTORE_DIR = '/mnt/firmware/deleted'
 SHARD_DIR = '/mnt/firmware/shards'
 HWINFO_DIR = '/var/www/lvfs/admin/hwinfo'
+CERTTOOL = 'flatpak run --command=certtool --filesystem=/tmp --filesystem=/var/www/lvfs/pkcs7 org.freedesktop.fwupd'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
 SQLALCHEMY_DATABASE_URI = 'postgresql://${dbusername}:${dbpassword}@${dbserver}/lvfs'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
