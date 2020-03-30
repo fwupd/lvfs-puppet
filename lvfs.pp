@@ -435,6 +435,33 @@ location /munin/ {
     require => Package['nginx'],
 }
 
+
+# logrotate
+package { 'logrotate':
+    ensure => installed,
+}
+file { '/etc/logrotate.d/uwsgi':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+\"/var/log/uwsgi/*.log\" {
+    copytruncate
+    monthly
+    dateext
+    rotate 3650
+    compress
+    delaycompress
+    notifempty
+    missingok
+    sharedscripts
+    create 777 root root
+    postrotate
+        systemctl restart uwsgi >/dev/null 2>&1
+    endscript
+}
+",
+    require => Package['logrotate'],
+}
+
 # antivirus
 package { 'clamav-update':
     ensure => installed,
