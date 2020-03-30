@@ -59,6 +59,7 @@ SECRET_PASSWORD_SALT = '${secret_password_salt}'
 SECRET_ADDR_SALT = '${secret_addr_salt}'
 SECRET_VENDOR_SALT = '${secret_vendor_salt}'
 HOST_NAME = '${server_fqdn}'
+PREFERRED_URL_SCHEME = 'https'
 APP_NAME = 'lvfs'
 IP = '${server_ip}'
 PORT = 80
