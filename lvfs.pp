@@ -299,7 +299,7 @@ http {
 
         # the www is not required
         if ($host ~ '^www\.') {
-            return 301 https://$server_name$request_uri;
+            return 301 https://\$server_name\$request_uri;
         }
 
         # old REST routes
