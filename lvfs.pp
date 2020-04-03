@@ -298,7 +298,7 @@ http {
         }
 
         # the www is not required
-        if ($host ~ '^www\.') {
+        if (\$host ~ '^www\.') {
             return 301 https://\$server_name\$request_uri;
         }
 
