@@ -86,6 +86,8 @@ MAIL_USE_SSL = False
 MAIL_USERNAME = '${mail_username}'
 MAIL_PASSWORD = '${mail_password}'
 MAIL_DEFAULT_SENDER = ('LVFS Admin Team', '${mail_sender}')
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 ",
     require => [ File['/var/www/lvfs'], Package['uwsgi'], Vcsrepo['/var/www/lvfs/admin'] ],
 }
@@ -129,47 +131,6 @@ package { 'gnutls-utils':
     ensure => installed,
 }
 
-cron { 'purgedelete':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py purgedelete >> /var/log/uwsgi/lvfs-purgedelete.log 2>&1',
-    user    => 'uwsgi',
-    hour    => 0,
-    minute  => 0,
-    require => Vcsrepo['/var/www/lvfs/admin'],
-}
-cron { 'stats':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py stats >> /var/log/uwsgi/lvfs-stats.log 2>&1',
-    user    => 'uwsgi',
-    minute  => 0,
-    hour    => 2,
-    require => Vcsrepo['/var/www/lvfs/admin'],
-}
-cron { 'sign-firmware':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py firmware >> /var/log/uwsgi/lvfs-firmware.log 2>&1',
-    user    => 'uwsgi',
-    hour    => '*',
-    minute  => '*/5',
-    require => Vcsrepo['/var/www/lvfs/admin'],
-}
-cron { 'fwchecks':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py fwchecks >> /var/log/uwsgi/lvfs-fwchecks.log 2>&1',
-    user    => 'uwsgi',
-    hour    => '*',
-    minute  => '*/5',
-    require => Vcsrepo['/var/www/lvfs/admin'],
-}
-cron { 'sign-metadata':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py firmware metadata >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
-    user    => 'uwsgi',
-    hour    => '*/4',
-    minute  => '0',
-    require => Vcsrepo['/var/www/lvfs/admin'],
-}
-cron { 'sign-metadata-embargo':
-    command => 'cd /var/www/lvfs/admin; LVFS_APP_SETTINGS=/var/www/lvfs/admin/lvfs/custom.cfg /usr/lib/lvfs/env36/bin/python3 /var/www/lvfs/admin/cron.py firmware metadata-embargo >> /var/log/uwsgi/lvfs-metadata.log 2>&1',
-    user    => 'uwsgi',
-    minute  => '*/5',
-    require => Vcsrepo['/var/www/lvfs/admin'],
-}
 cron { 'shards-hardlink':
     command => 'rdfind -makehardlinks true -makesymlinks false /mnt/firmware/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
     user    => 'uwsgi',
@@ -315,6 +276,12 @@ http {
             alias /var/www/.well-known/;
         }
 
+        location /flower/ {
+            rewrite ^/flower/(.*)\$ /\$1 break;
+            proxy_pass http://staging.fwupd.org:5555;
+            proxy_set_header Host \$host;
+        }
+
         # Prevent browsers from incorrectly detecting non-scripts as scripts
         # https://wiki.mozilla.org/Security/Guidelines/Web_Security#X-Content-Type-Options
         add_header X-Content-Type-Options nosniff;
@@ -341,7 +308,7 @@ http {
 
         # Block pages from loading when they detect reflected XSS attacks
         # https://wiki.mozilla.org/Security/Guidelines/Web_Security#Content_Security_Policy
-        add_header Content-Security-Policy \"default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://stackpath.bootstrapcdn.com https://code.jquery.com https://cdnjs.cloudflare.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com https://fonts.googleapis.com https://use.fontawesome.com; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com; frame-ancestors 'none'\";
+        add_header Content-Security-Policy \"default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://stackpath.bootstrapcdn.com https://code.jquery.com https://cdnjs.cloudflare.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com https://fonts.googleapis.com https://use.fontawesome.com; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com; frame-ancestors 'none'\";
 
         # Load configuration files for the default server block.
         include /etc/nginx/default.d/*.conf;
@@ -436,6 +403,180 @@ location /munin/ {
     require => Package['nginx'],
 }
 
+
+# celery
+package { 'redis':
+    ensure => installed,
+}
+service { 'redis':
+    ensure   => 'running',
+    enable   => true,
+    require  => Package["redis"],
+}
+file { '/etc/tmpfiles.d/celery.conf':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+d /var/run/celery 0755 uwsgi uwsgi -
+d /var/log/celery 0755 uwsgi uwsgi -
+",
+    require => Exec['pip_requirements_install'],
+}
+file { '/etc/conf.d':
+    ensure   => 'directory',
+}
+file { '/var/run/celery':
+    ensure   => 'directory',
+    owner    => 'uwsgi',
+    group    => 'uwsgi',
+    require  => Package['uwsgi'],
+}
+file { '/var/log/celery':
+    ensure   => 'directory',
+    owner    => 'uwsgi',
+    group    => 'uwsgi',
+    require  => Package['uwsgi'],
+}
+file { '/etc/conf.d/celery':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+# Name of nodes to start
+CELERYD_NODES=\"w1\"
+
+# Absolute or relative path to the 'celery' command:
+CELERY_BIN=\"/usr/lib/lvfs/env36/bin/celery\"
+
+# App instance to use
+CELERY_APP=\"lvfs.celery\"
+
+# or fully qualified:
+#CELERY_APP=\"proj.tasks:app\"
+
+# How to call manage.py
+CELERYD_MULTI=\"multi\"
+
+# How to call manage.py
+CELERYD_QUEUES=\"metadata,firmware,celery,yara\"
+
+# Extra command-line arguments to the worker
+#CELERYD_OPTS=\"--time-limit=300 --concurrency=8\"
+
+# - %n will be replaced with the first part of the nodename.
+# - %I will be replaced with the current child process index
+#   and is important when using the prefork pool to avoid race conditions.
+CELERYD_PID_FILE=\"/var/run/celery/%n.pid\"
+CELERYD_LOG_FILE=\"/var/log/celery/%n%I.log\"
+CELERYD_LOG_LEVEL=\"INFO\"
+
+# you may wish to add these options for Celery Beat
+CELERYBEAT_PID_FILE=\"/var/run/celery/beat.pid\"
+CELERYBEAT_SCHEDULE=\"/var/run/celery/beat-schedule\"
+CELERYBEAT_LOG_FILE=\"/var/log/celery/beat.log\"
+",
+    require => [ File['/etc/conf.d'], Vcsrepo['/var/www/lvfs/admin'] ],
+}
+file { '/etc/systemd/system/celery.service':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+[Unit]
+Description=Celery Service
+After=network.target
+
+[Service]
+Type=forking
+User=uwsgi
+Group=uwsgi
+EnvironmentFile=/etc/conf.d/celery
+WorkingDirectory=/var/www/lvfs/admin
+ExecStart=/bin/sh -c '\${CELERY_BIN} multi start \${CELERYD_NODES} \
+  -A \${CELERY_APP} \
+  --pidfile=\${CELERYD_PID_FILE} \
+  --queues=\${CELERYD_QUEUES} \
+  --logfile=\${CELERYD_LOG_FILE} \
+  --loglevel=\${CELERYD_LOG_LEVEL} \
+  ${CELERYD_OPTS}'
+ExecStop=/bin/sh -c '\${CELERY_BIN} multi stopwait \${CELERYD_NODES} \
+  --pidfile=\${CELERYD_PID_FILE}'
+ExecReload=/bin/sh -c '\${CELERY_BIN} multi restart \${CELERYD_NODES} \
+  -A \${CELERY_APP} --pidfile=\${CELERYD_PID_FILE} \
+  --logfile=\${CELERYD_LOG_FILE} --loglevel=\${CELERYD_LOG_LEVEL} \${CELERYD_OPTS}'
+
+[Install]
+WantedBy=multi-user.target
+",
+    require => [ Exec['pip_requirements_install'], Package['uwsgi'] ],
+}
+service { 'celery':
+    ensure   => 'running',
+    enable   => true,
+    require  => File["/etc/systemd/system/celery.service"],
+}
+
+file { '/etc/systemd/system/celerybeat.service':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+[Unit]
+Description=Celery Beat Service
+After=network.target
+
+[Service]
+Type=simple
+User=uwsgi
+Group=uwsgi
+EnvironmentFile=/etc/conf.d/celery
+WorkingDirectory=/var/www/lvfs/admin
+ExecStart=/bin/sh -c '\${CELERY_BIN} beat \
+  -A \${CELERY_APP} \
+  --pidfile=\${CELERYBEAT_PID_FILE} \
+  --logfile=\${CELERYBEAT_LOG_FILE} \
+  --loglevel=\${CELERYD_LOG_LEVEL} \
+  --schedule=\${CELERYBEAT_SCHEDULE}'
+
+[Install]
+WantedBy=multi-user.target
+",
+    require => [ Exec['pip_requirements_install'], Package['uwsgi'] ],
+}
+service { 'celerybeat':
+    ensure   => 'running',
+    enable   => true,
+    require  => File["/etc/systemd/system/celerybeat.service"],
+}
+
+file { '/etc/systemd/system/flower.service':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+[Unit]
+Description=Flower celery UI
+After=network.target
+
+[Service]
+Type=simple
+User=uwsgi
+Group=uwsgi
+EnvironmentFile=/etc/conf.d/celery
+WorkingDirectory=/var/www/lvfs/admin
+ExecStart=/bin/sh -c '\${CELERY_BIN} flower -A \${CELERY_APP}'
+
+[Install]
+WantedBy=multi-user.target
+",
+    require => [ Exec['pip_requirements_install'], Package['uwsgi'] ],
+}
+file { '/var/www/lvfs/admin/flowerconfig.py':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+broker = 'redis://localhost:6379/0'
+url_prefix = '/flower/'
+basic_auth = ['${munin_username}:${munin_password}']
+persistent = True
+",
+    require => Vcsrepo['/var/www/lvfs/admin'],
+}
+service { 'flower':
+    ensure   => 'running',
+    enable   => true,
+    require  => File["/etc/systemd/system/flower.service"],
+}
 
 # logrotate
 package { 'logrotate':
