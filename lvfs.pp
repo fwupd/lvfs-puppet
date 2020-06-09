@@ -313,8 +313,8 @@ http {
         # Load configuration files for the default server block.
         include /etc/nginx/default.d/*.conf;
 
-        location /img/ {
-            alias /var/www/lvfs/admin/lvfs/static/img/;
+        location /static/ {
+            alias /var/www/lvfs/admin/lvfs/static/;
         }
         location /uploads/ {
             alias /var/www/lvfs/admin/uploads/;
