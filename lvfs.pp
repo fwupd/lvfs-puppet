@@ -278,7 +278,7 @@ http {
 
         location /flower/ {
             rewrite ^/flower/(.*)\$ /\$1 break;
-            proxy_pass http://staging.fwupd.org:5555;
+            proxy_pass http://localhost:5555;
             proxy_set_header Host \$host;
         }
 
