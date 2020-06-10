@@ -448,9 +448,6 @@ CELERY_BIN=\"/usr/lib/lvfs/env36/bin/celery\"
 # App instance to use
 CELERY_APP=\"lvfs.celery\"
 
-# or fully qualified:
-#CELERY_APP=\"proj.tasks:app\"
-
 # How to call manage.py
 CELERYD_MULTI=\"multi\"
 
