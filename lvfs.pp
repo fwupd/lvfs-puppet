@@ -393,10 +393,8 @@ http {
             expires 20m;
         }
         location / {
-#            uwsgi_read_timeout 180s;
-#            uwsgi_send_timeout 180s;
-            uwsgi_pass unix:///run/lvfs/lvfs.socket;
-#            include uwsgi_params;
+            include proxy_params;
+            proxy_pass unix:///run/lvfs/lvfs.socket;
         }
 
         error_page 404 /404.html;
@@ -623,6 +621,7 @@ After=network.target
 
 [Service]
 User=lvfs
+Group=lvfs
 WorkingDirectory=/var/www/lvfs/admin
 Environment=\"PATH=/var/www/lvfs/admin/env/bin\"
 ExecStart=/var/www/lvfs/admin/env/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 lvfs:app
