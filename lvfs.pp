@@ -629,7 +629,7 @@ After=network.target
 User=lvfs
 WorkingDirectory=/var/www/lvfs/admin
 Environment=\"PATH=/var/www/lvfs/admin/env/bin\"
-ExecStart=/usr/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 wsgi:app
+ExecStart=/usr/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 lvfs:app
 
 [Install]
 WantedBy=multi-user.target
