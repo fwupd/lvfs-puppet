@@ -612,19 +612,45 @@ SELINUXTYPE=targeted
 }
 
 # gunicorn
+file { '/etc/systemd/system/lvfs.socket':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+[Unit]
+Description=lvfs socket
+
+[Socket]
+ListenStream=/run/lvfs/lvfs.socket
+# Our service won't need permissions for the socket, since it
+# inherits the file descriptor by socket activation
+# only the nginx daemon will need access to the socket
+User=nginx
+# Optionally restrict the socket permissions even more.
+# Mode=600
+
+[Install]
+WantedBy=sockets.target
+",
+}
 file { '/etc/systemd/system/lvfs.service':
     ensure => "file",
     content => "# Managed by Puppet, DO NOT EDIT
 [Unit]
 Description=Gunicorn instance to serve LVFS
+Requires=lvfs.socket
 After=network.target
 
 [Service]
 User=lvfs
 Group=lvfs
+RuntimeDirectory=lvfs
 WorkingDirectory=/var/www/lvfs/admin
-Environment=\"PATH=/var/www/lvfs/admin/env/bin\"
-ExecStart=/var/www/lvfs/admin/env/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 lvfs:app
+#Environment=\"PATH=/var/www/lvfs/admin/env/bin\"
+#ExecStart=/var/www/lvfs/admin/env/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 lvfs:app
+ExecStart=/var/www/lvfs/admin/env/bin/gunicorn --workers 3 -m 007 lvfs:app
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target
