@@ -5,9 +5,9 @@ file { '/etc/motd':
 }
 
 host { 'host':
-  name         => '${server_fqdn}',
+  name         => $server_fqdn,
   ensure       => 'present',
-  host_aliases => '${server_alias}',
+  host_aliases => $server_alias,
   ip           => '127.0.0.1',
 }
 
@@ -191,13 +191,13 @@ package { 'gnutls-utils':
     ensure => installed,
 }
 
-cron { 'shards-hardlink':
-    command => 'rdfind -makehardlinks true -makesymlinks false /mnt/firmware/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
-    user    => 'uwsgi',
-    minute  => 0,
-    hour    => 3,
-    require => Vcsrepo['/var/www/lvfs/admin'],
-}
+#cron { 'shards-hardlink':
+#    command => 'rdfind -makehardlinks true -makesymlinks false /mnt/firmware/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
+#    user    => 'uwsgi',
+#    minute  => 0,
+#    hour    => 3,
+#    require => [ Vcsrepo['/var/www/lvfs/admin'], Package['rdfind'] ],
+#}
 package { 's3cmd':
     ensure => installed,
 }
@@ -412,9 +412,9 @@ service { 'nginx':
     enable => true,
     require => [ Package['nginx'], Package['uwsgi'] ],
 }
-package { 'rdfind':
-    ensure => installed,
-}
+#package { 'rdfind':
+#    ensure => installed,
+#}
 
 # allow monitoring server
 package { 'munin':
@@ -599,6 +599,15 @@ service { 'celerybeat':
     require  => File["/etc/systemd/system/celerybeat.service"],
 }
 
+# disable SELinux, sorry Dan...
+file { '/etc/sysconfig/selinux':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+SELINUX=permissive
+SELINUXTYPE=targeted
+",
+}
+
 file { '/etc/systemd/system/flower.service':
     ensure => "file",
     content => "# Managed by Puppet, DO NOT EDIT
@@ -663,6 +672,9 @@ file { '/etc/logrotate.d/uwsgi':
 
 # antivirus
 package { 'clamav-update':
+    ensure => installed,
+}
+package { 'clamav-data':
     ensure => installed,
 }
 package { 'clamav':
