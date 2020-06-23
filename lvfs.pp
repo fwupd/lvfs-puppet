@@ -277,7 +277,7 @@ service { 'lvfs':
 exec { 'nginx-lvfs-membership':
     unless => '/bin/grep -q "lvfs\\S*nginx" /etc/group',
     command => '/sbin/usermod -aG lvfs nginx',
-    require => Package['lvfs'],
+    require => User['lvfs'],
 }
 
 # start nginx load balancer
