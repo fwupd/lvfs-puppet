@@ -1,3 +1,57 @@
+file { '/etc/motd':
+    ensure  => "file",
+    content => "This system is puppet managed!
+",
+}
+
+host { 'host':
+  name         => '${server_fqdn}',
+  ensure       => 'present',
+  host_aliases => '${server_alias}',
+  ip           => '127.0.0.1',
+}
+
+# disable the rpcbind socket activation: `systemctl disable rpcbind.socket`
+service { 'rpcbind.socket':
+  enable     => 'false',
+}
+
+# we want a SSL certificate
+package { 'certbot':
+    ensure => installed,
+}
+package { 'python3-certbot-nginx':
+    ensure => installed,
+    require => Package['certbot'],
+}
+cron { 'certbot':
+    command => 'certbot renew --post-hook "systemctl reload nginx"',
+    minute  => '30',
+    hour    => '9',
+    require => Package['certbot'],
+}
+
+# lock down SSH
+file { '/etc/ssh/sshd_config':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+KexAlgorithms curve25519-sha256@libssh.org,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+SyslogFacility AUTHPRIV
+AuthorizedKeysFile	.ssh/authorized_keys
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+GSSAPIAuthentication yes
+GSSAPICleanupCredentials no
+UsePAM yes
+Subsystem	sftp	/usr/libexec/openssh/sftp-server
+",
+}
+
 file { '/var/www':
     ensure   => 'directory',
 }
@@ -114,6 +168,12 @@ package { 'cairo-gobject-devel':
 package { 'gobject-introspection-devel':
     ensure => installed,
 }
+package { 'GeoIP-devel':
+    ensure => installed,
+}
+package { 'libgcab1':
+    ensure => installed,
+}
 exec { 'virtualenv_create':
     command     => '/usr/bin/virtualenv-3 /var/www/lvfs/admin/env',
     refreshonly => true,
@@ -123,7 +183,7 @@ exec { 'pip_requirements_install':
     command     => '/var/www/lvfs/admin/env/bin/pip3 install -r /var/www/lvfs/admin/requirements.txt',
     path        => '/usr/bin',
     refreshonly => true,
-    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python3-pip'], Exec['virtualenv_create'] ],
+    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python3-pip'], Package['GeoIP-devel'], Package['libgcab1'], Exec['virtualenv_create'] ],
 }
 
 # required for the PKCS#7 support
