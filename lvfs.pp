@@ -99,13 +99,13 @@ package { 'bsdtar':
 package { 'git':
     ensure => installed,
 }
-package { 'python36-psutil':
+package { 'python3-psutil':
     ensure => installed,
 }
 package { 'python3-pip':
     ensure => installed,
 }
-package { 'python36-virtualenv':
+package { 'python3-virtualenv':
     ensure => installed,
 }
 package { 'cairo-gobject-devel':
@@ -115,12 +115,12 @@ package { 'gobject-introspection-devel':
     ensure => installed,
 }
 exec { 'virtualenv_create':
-    command     => '/usr/bin/virtualenv-3.6 /usr/lib/lvfs/env36',
+    command     => '/usr/bin/virtualenv-3 /var/www/lvfs/admin/env',
     refreshonly => true,
-    require     => [ Package['python36-virtualenv'] ],
+    require     => [ Package['python3-virtualenv'] ],
 }
 exec { 'pip_requirements_install':
-    command     => '/usr/lib/lvfs/env36/bin/pip3 install -r /var/www/lvfs/admin/requirements.txt',
+    command     => '/var/www/lvfs/admin/env/bin/pip3 install -r /var/www/lvfs/admin/requirements.txt',
     path        => '/usr/bin',
     refreshonly => true,
     require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python3-pip'], Exec['virtualenv_create'] ],
@@ -182,7 +182,7 @@ file { '/etc/uwsgi.d/lvfs.ini':
     content => "# Managed by Puppet, DO NOT EDIT
 [uwsgi]
 chdir = /var/www/lvfs/admin
-virtualenv = /usr/lib/lvfs/env36
+virtualenv = /var/www/lvfs/admin/env
 module = lvfs:app
 plugins = python36
 uid = uwsgi
@@ -443,7 +443,7 @@ file { '/etc/conf.d/celery':
 CELERYD_NODES=\"w1\"
 
 # Absolute or relative path to the 'celery' command:
-CELERY_BIN=\"/usr/lib/lvfs/env36/bin/celery\"
+CELERY_BIN=\"/var/www/lvfs/admin/env/bin/celery\"
 
 # App instance to use
 CELERY_APP=\"lvfs.celery\"
