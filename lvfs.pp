@@ -269,6 +269,11 @@ service { 'lvfs':
     enable => true,
     require => [ Group['lvfs'] ],
 }
+service { 'lvfs.socket':
+    ensure => 'running',
+    enable => true,
+    require => [ Group['lvfs'] ],
+}
 
 exec { 'nginx-lvfs-membership':
     unless => '/bin/grep -q "lvfs\\S*nginx" /etc/group',
