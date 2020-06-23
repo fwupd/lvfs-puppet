@@ -628,7 +628,7 @@ After=network.target
 [Service]
 User=lvfs
 WorkingDirectory=/var/www/lvfs/admin
-Environment="PATH=/var/www/lvfs/admin/env/bin"
+Environment=\"PATH=/var/www/lvfs/admin/env/bin\"
 ExecStart=/usr/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 wsgi:app
 
 [Install]
