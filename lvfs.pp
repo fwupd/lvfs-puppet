@@ -1,19 +1,19 @@
 file { '/etc/motd':
-    ensure  => "file",
+    ensure => "file",
     content => "This system is puppet managed!
 ",
 }
 
 host { 'host':
-  name         => $server_fqdn,
-  ensure       => 'present',
+  name => $server_fqdn,
+  ensure => 'present',
   host_aliases => $server_alias,
-  ip           => '127.0.0.1',
+  ip => '127.0.0.1',
 }
 
 # disable the rpcbind socket activation: `systemctl disable rpcbind.socket`
 service { 'rpcbind.socket':
-  enable     => 'false',
+  enable => 'false',
 }
 
 # we want a SSL certificate
@@ -26,8 +26,8 @@ package { 'python3-certbot-nginx':
 }
 cron { 'certbot':
     command => 'certbot renew --post-hook "systemctl reload nginx"',
-    minute  => '30',
-    hour    => '9',
+    minute => '30',
+    hour => '9',
     require => Package['certbot'],
 }
 
@@ -52,58 +52,70 @@ Subsystem	sftp	/usr/libexec/openssh/sftp-server
 ",
 }
 
+user { 'lvfs':
+  name => 'lvfs',
+  ensure => 'present',
+}
+
+group { 'lvfs':
+  name => 'lvfs',
+  ensure => 'present',
+  members => 'lvfs',
+  require => User['lvfs'],
+}
+
 file { '/var/www':
-    ensure   => 'directory',
+    ensure => 'directory',
 }
 file { '/var/www/lvfs':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ File['/var/www'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'lvfs',
+    group => 'lvfs',
+    require => [ File['/var/www'], Group['lvfs'] ],
 }
 vcsrepo { '/var/www/lvfs/admin':
-    ensure   => latest,
+    ensure => latest,
     provider => git,
     revision => $lvfs_revision,
-    source   => 'https://github.com/hughsie/lvfs-website.git',
-    user     => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ File['/var/www/lvfs'], Package['uwsgi']],
+    source => 'https://github.com/hughsie/lvfs-website.git',
+    user => 'lvfs',
+    group => 'lvfs',
+    require => [ File['/var/www/lvfs'], Group['lvfs'] ],
 }
 file { '/mnt/firmware/deleted':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ Vcsrepo['/var/www/lvfs/admin'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'lvfs',
+    group => 'lvfs',
+    require => [ Vcsrepo['/var/www/lvfs/admin'], Group['lvfs'] ],
 }
 file { '/var/www/lvfs/admin/hwinfo':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ Vcsrepo['/var/www/lvfs/admin'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'lvfs',
+    group => 'lvfs',
+    require => [ Vcsrepo['/var/www/lvfs/admin'], Group['lvfs'] ],
 }
 file { '/mnt/firmware/downloads':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ File['/var/www/lvfs'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'lvfs',
+    group => 'lvfs',
+    require => [ File['/var/www/lvfs'], Group['lvfs'] ],
 }
 file { '/mnt/firmware/shards':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ File['/var/www/lvfs'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'lvfs',
+    group => 'lvfs',
+    require => [ File['/var/www/lvfs'], Group['lvfs'] ],
 }
 file { '/var/www/lvfs/backup':
-    ensure  => 'directory',
-    owner   => 'uwsgi',
-    group   => 'uwsgi',
-    require  => [ File['/var/www/lvfs'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'lvfs',
+    group => 'lvfs',
+    require => [ File['/var/www/lvfs'], Group['lvfs'] ],
 }
 file { '/var/www/lvfs/admin/lvfs/custom.cfg':
-    ensure  => 'file',
-    owner   => 'uwsgi',
-    group   => 'uwsgi',
+    ensure => 'file',
+    owner => 'lvfs',
+    group => 'lvfs',
     content => "# Managed by Puppet, DO NOT EDIT
 import os
 DEBUG = False
@@ -143,7 +155,7 @@ MAIL_DEFAULT_SENDER = ('LVFS Admin Team', '${mail_sender}')
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 ",
-    require => [ File['/var/www/lvfs'], Package['uwsgi'], Vcsrepo['/var/www/lvfs/admin'] ],
+    require => [ File['/var/www/lvfs'], Group['lvfs'], Vcsrepo['/var/www/lvfs/admin'] ],
 }
 
 # python deps are installed using requirements.txt where possible
@@ -175,15 +187,15 @@ package { 'libgcab1':
     ensure => installed,
 }
 exec { 'virtualenv_create':
-    command     => '/usr/bin/virtualenv-3 /var/www/lvfs/admin/env',
+    command => '/usr/bin/virtualenv-3 /var/www/lvfs/admin/env',
     refreshonly => true,
-    require     => [ Package['python3-virtualenv'] ],
+    require => [ Package['python3-virtualenv'] ],
 }
 exec { 'pip_requirements_install':
-    command     => '/var/www/lvfs/admin/env/bin/pip3 install -r /var/www/lvfs/admin/requirements.txt',
-    path        => '/usr/bin',
+    command => '/var/www/lvfs/admin/env/bin/pip3 install -r /var/www/lvfs/admin/requirements.txt',
+    path => '/usr/bin',
     refreshonly => true,
-    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python3-pip'], Package['GeoIP-devel'], Package['libgcab1'], Exec['virtualenv_create'] ],
+    require => [ Vcsrepo['/var/www/lvfs/admin'], Package['python3-pip'], Package['GeoIP-devel'], Package['libgcab1'], Exec['virtualenv_create'] ],
 }
 
 # required for the PKCS#7 support
@@ -192,83 +204,80 @@ package { 'gnutls-utils':
 }
 
 #cron { 'shards-hardlink':
-#    command => 'rdfind -makehardlinks true -makesymlinks false /mnt/firmware/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
-#    user    => 'uwsgi',
-#    minute  => 0,
-#    hour    => 3,
+#    command => 'rdfind -makehardlinks true -makesymlinks false /mnt/firmware/shards >> /var/log/lvfs/lvfs-hardlink.log 2>&1',
+#    user => 'lvfs',
+#    minute => 0,
+#    hour => 3,
 #    require => [ Vcsrepo['/var/www/lvfs/admin'], Package['rdfind'] ],
 #}
 package { 's3cmd':
     ensure => installed,
 }
 cron { 's3cmd-downloads':
-    command => 's3cmd sync /mnt/firmware/downloads s3://lvfs >> /var/log/uwsgi/lvfs-downloads.log 2>&1',
-    user    => 'root',
-    minute  => 0,
-    hour    => 4,
+    command => 's3cmd sync /mnt/firmware/downloads s3://lvfs >> /var/log/lvfs/lvfs-downloads.log 2>&1',
+    user => 'root',
+    minute => 0,
+    hour => 4,
 }
 
 # set up the database
-package { 'postgresql-server':
-  ensure => installed,
-}
-package { 'postgresql-devel':
-  ensure => installed,
-}
+#package { 'postgresql-server':
+#  ensure => installed,
+#}
+#package { 'postgresql-devel':
+#  ensure => installed,
+#}
 
-# use uWSGI
-package { 'uwsgi-plugin-python36':
+# use gunicorn
+package { 'python3-gunicorn':
     ensure => installed,
 }
-package { 'uwsgi':
-    ensure => installed,
+file { '/var/log/lvfs':
+    ensure => 'directory',
+    owner => 'lvfs',
+    group => 'lvfs',
+    require => Group['lvfs'],
 }
-file { '/var/log/uwsgi':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => Package['uwsgi'],
-}
-file { '/etc/tmpfiles.d/uwsgi.conf':
+file { '/etc/tmpfiles.d/lvfs.conf':
     ensure => "file",
-    content => "D /run/uwsgi 0770 uwsgi uwsgi -",
-    require => Package['uwsgi'],
+    content => "D /run/lvfs 0770 lvfs lvfs -",
+    require => Group['lvfs'],
 }
 
-file { '/etc/uwsgi.d/lvfs.ini':
-    ensure   => "file",
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    content => "# Managed by Puppet, DO NOT EDIT
-[uwsgi]
-chdir = /var/www/lvfs/admin
-virtualenv = /var/www/lvfs/admin/env
-module = lvfs:app
-plugins = python36
-uid = uwsgi
-gid = uwsgi
-socket = /run/uwsgi/%n.socket
-chmod-socket = 660
-logto = /var/log/uwsgi/%n.log
-stats = 127.0.0.1:9191
-processes = 4
-buffer-size = 65536
-enable-threads = true
-harakiri = 180
-lazy-apps = true
-",
-    require => Package['uwsgi'],
-}
-service { 'uwsgi':
+#file { '/etc/uwsgi.d/lvfs.ini':
+#    ensure => "file",
+#    owner => 'uwsgi',
+#    group => 'uwsgi',
+#    content => "# Managed by Puppet, DO NOT EDIT
+#[uwsgi]
+#chdir = /var/www/lvfs/admin
+#virtualenv = /var/www/lvfs/admin/env
+#module = lvfs:app
+#plugins = python36
+#uid = uwsgi
+#gid = uwsgi
+#socket = /run/uwsgi/%n.socket
+#chmod-socket = 660
+#logto = /var/log/uwsgi/%n.log
+#stats = 127.0.0.1:9191
+#processes = 4
+#buffer-size = 65536
+#enable-threads = true
+#harakiri = 180
+#lazy-apps = true
+#",
+#    require => Group['lvfs'],
+#}
+service { 'lvfs':
     ensure => 'running',
     enable => true,
-    require => [ Package['uwsgi'], File['/etc/uwsgi.d/lvfs.ini'] ],
+    require => [ Group['lvfs'], Package['python3-gunicorn'] ],
 }
 
-exec { 'nginx-uwsgi-membership':
-    unless  => '/bin/grep -q "uwsgi\\S*nginx" /etc/group',
-    command => '/sbin/usermod -aG uwsgi nginx',
-    require => Package['uwsgi'],
+exec { 'nginx-lvfs-membership':
+    unless => '/bin/grep -q "lvfs\\S*nginx" /etc/group',
+    command => '/sbin/usermod -aG lvfs nginx',
+    require => Package['lvfs'],
 }
 
 # start nginx load balancer
@@ -388,10 +397,10 @@ http {
             expires 20m;
         }
         location / {
-            uwsgi_read_timeout 180s;
-            uwsgi_send_timeout 180s;
-            uwsgi_pass unix:///run/uwsgi/lvfs.socket;
-            include uwsgi_params;
+#            uwsgi_read_timeout 180s;
+#            uwsgi_send_timeout 180s;
+            uwsgi_pass unix:///run/lvfs/lvfs.socket;
+#            include uwsgi_params;
         }
 
         error_page 404 /404.html;
@@ -410,7 +419,7 @@ http {
 service { 'nginx':
     ensure => 'running',
     enable => true,
-    require => [ Package['nginx'], Package['uwsgi'] ],
+    require => [ Package['nginx'], Package['python3-gunicorn'] ],
 }
 #package { 'rdfind':
 #    ensure => installed,
@@ -424,17 +433,17 @@ package { 'munin-plugins-ruby':
     ensure => installed,
 }
 service { 'munin-node':
-    ensure   => 'running',
-    enable   => true,
-    require  => Package["munin"],
+    ensure => 'running',
+    enable => true,
+    require => Package["munin"],
 }
 package { 'httpd-tools':
     ensure => installed,
 }
 exec { "munin-htpasswd":
-    command     => "/usr/bin/htpasswd -cb /etc/munin/munin-htpasswd ${munin_username} ${munin_password}",
-    unless      => "/usr/bin/test -s /etc/munin/munin-htpasswd",
-    require     => [ Package["munin"], Package['httpd-tools'] ],
+    command => "/usr/bin/htpasswd -cb /etc/munin/munin-htpasswd ${munin_username} ${munin_password}",
+    unless => "/usr/bin/test -s /etc/munin/munin-htpasswd",
+    require => [ Package["munin"], Package['httpd-tools'] ],
 }
 file { '/etc/munin/conf.d/local.conf':
     ensure => "file",
@@ -469,32 +478,32 @@ package { 'redis':
     ensure => installed,
 }
 service { 'redis':
-    ensure   => 'running',
-    enable   => true,
-    require  => Package["redis"],
+    ensure => 'running',
+    enable => true,
+    require => Package["redis"],
 }
 file { '/etc/tmpfiles.d/celery.conf':
     ensure => "file",
     content => "# Managed by Puppet, DO NOT EDIT
-d /var/run/celery 0755 uwsgi uwsgi -
-d /var/log/celery 0755 uwsgi uwsgi -
+d /var/run/celery 0755 lvfs lvfs -
+d /var/log/celery 0755 lvfs lvfs -
 ",
     require => Exec['pip_requirements_install'],
 }
 file { '/etc/conf.d':
-    ensure   => 'directory',
+    ensure => 'directory',
 }
 file { '/var/run/celery':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => Package['uwsgi'],
+    ensure => 'directory',
+    owner => 'lvfs',
+    group => 'lvfs',
+    require => Group['lvfs'],
 }
 file { '/var/log/celery':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => Package['uwsgi'],
+    ensure => 'directory',
+    owner => 'lvfs',
+    group => 'lvfs',
+    require => Group['lvfs'],
 }
 file { '/etc/conf.d/celery':
     ensure => "file",
@@ -540,8 +549,8 @@ After=network.target
 
 [Service]
 Type=forking
-User=uwsgi
-Group=uwsgi
+User=lvfs
+Group=lvfs
 EnvironmentFile=/etc/conf.d/celery
 WorkingDirectory=/var/www/lvfs/admin
 ExecStart=/bin/sh -c '\${CELERY_BIN} multi start \${CELERYD_NODES} \
@@ -560,12 +569,12 @@ ExecReload=/bin/sh -c '\${CELERY_BIN} multi restart \${CELERYD_NODES} \
 [Install]
 WantedBy=multi-user.target
 ",
-    require => [ Exec['pip_requirements_install'], Package['uwsgi'] ],
+    require => [ Exec['pip_requirements_install'], Group['lvfs'] ],
 }
 service { 'celery':
-    ensure   => 'running',
-    enable   => true,
-    require  => File["/etc/systemd/system/celery.service"],
+    ensure => 'running',
+    enable => true,
+    require => File["/etc/systemd/system/celery.service"],
 }
 
 file { '/etc/systemd/system/celerybeat.service':
@@ -577,8 +586,8 @@ After=network.target
 
 [Service]
 Type=simple
-User=uwsgi
-Group=uwsgi
+User=lvfs
+Group=lvfs
 EnvironmentFile=/etc/conf.d/celery
 WorkingDirectory=/var/www/lvfs/admin
 ExecStart=/bin/sh -c '\${CELERY_BIN} beat \
@@ -591,12 +600,12 @@ ExecStart=/bin/sh -c '\${CELERY_BIN} beat \
 [Install]
 WantedBy=multi-user.target
 ",
-    require => [ Exec['pip_requirements_install'], Package['uwsgi'] ],
+    require => [ Exec['pip_requirements_install'], Group['lvfs'] ],
 }
 service { 'celerybeat':
-    ensure   => 'running',
-    enable   => true,
-    require  => File["/etc/systemd/system/celerybeat.service"],
+    ensure => 'running',
+    enable => true,
+    require => File["/etc/systemd/system/celerybeat.service"],
 }
 
 # disable SELinux, sorry Dan...
@@ -605,6 +614,25 @@ file { '/etc/sysconfig/selinux':
     content => "# Managed by Puppet, DO NOT EDIT
 SELINUX=permissive
 SELINUXTYPE=targeted
+",
+}
+
+# gunicorn
+file { '/etc/systemd/system/lvfs.service':
+    ensure => "file",
+    content => "# Managed by Puppet, DO NOT EDIT
+[Unit]
+Description=Gunicorn instance to serve LVFS
+After=network.target
+
+[Service]
+User=lvfs
+WorkingDirectory=/var/www/lvfs/admin
+Environment="PATH=/var/www/lvfs/admin/env/bin"
+ExecStart=/usr/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target
 ",
 }
 
@@ -617,8 +645,8 @@ After=network.target
 
 [Service]
 Type=simple
-User=uwsgi
-Group=uwsgi
+User=lvfs
+Group=lvfs
 EnvironmentFile=/etc/conf.d/celery
 WorkingDirectory=/var/www/lvfs/admin
 ExecStart=/bin/sh -c '\${CELERY_BIN} flower -A \${CELERY_APP}'
@@ -626,7 +654,7 @@ ExecStart=/bin/sh -c '\${CELERY_BIN} flower -A \${CELERY_APP}'
 [Install]
 WantedBy=multi-user.target
 ",
-    require => [ Exec['pip_requirements_install'], Package['uwsgi'] ],
+    require => [ Exec['pip_requirements_install'], Group['lvfs'] ],
 }
 file { '/var/www/lvfs/admin/flowerconfig.py':
     ensure => "file",
@@ -639,19 +667,19 @@ persistent = True
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 service { 'flower':
-    ensure   => 'running',
-    enable   => true,
-    require  => File["/etc/systemd/system/flower.service"],
+    ensure => 'running',
+    enable => true,
+    require => File["/etc/systemd/system/flower.service"],
 }
 
 # logrotate
 package { 'logrotate':
     ensure => installed,
 }
-file { '/etc/logrotate.d/uwsgi':
+file { '/etc/logrotate.d/lvfs':
     ensure => "file",
     content => "# Managed by Puppet, DO NOT EDIT
-\"/var/log/uwsgi/*.log\" {
+\"/var/log/lvfs/*.log\" {
     copytruncate
     monthly
     dateext
@@ -663,7 +691,7 @@ file { '/etc/logrotate.d/uwsgi':
     sharedscripts
     create 777 root root
     postrotate
-        systemctl restart uwsgi >/dev/null 2>&1
+        systemctl restart lvfs >/dev/null 2>&1
     endscript
 }
 ",
@@ -680,10 +708,10 @@ package { 'clamav-data':
 package { 'clamav':
     ensure => installed,
 }
-exec { 'uwsgi virusgroup membership':
-    unless => "/bin/getent group virusgroup|/bin/cut -d: -f4|/bin/grep -q uwsgi",
-    command => "/usr/sbin/usermod -a -G virusgroup uwsgi",
-    require => Package['uwsgi'],
+exec { 'lvfs virusgroup membership':
+    unless => "/bin/getent group virusgroup|/bin/cut -d: -f4|/bin/grep -q lvfs",
+    command => "/usr/sbin/usermod -a -G virusgroup lvfs",
+    require => Group['lvfs'],
 }
 file { '/etc/clamd.d/scan.conf':
     ensure => "file",
@@ -712,12 +740,12 @@ service { 'clamd@scan':
 
 # fixes permissions after a key has been imported
 file { '/var/www/lvfs/.gnupg':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => File['/var/www/lvfs'],
+    ensure => 'directory',
+    owner => 'lvfs',
+    group => 'lvfs',
+    require => File['/var/www/lvfs'],
 }
-exec { 'gnupg-uwsgi-chown':
-    command  => "/bin/chown -R uwsgi:uwsgi /var/www/lvfs/.gnupg/",
-    require  => File['/var/www/lvfs/.gnupg'],
+exec { 'gnupg-lvfs-chown':
+    command => "/bin/chown -R lvfs:lvfs /var/www/lvfs/.gnupg/",
+    require => File['/var/www/lvfs/.gnupg'],
 }
