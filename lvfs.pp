@@ -647,7 +647,7 @@ WorkingDirectory=/var/www/lvfs/admin
 #Environment=\"PATH=/var/www/lvfs/admin/env/bin\"
 #ExecStart=/var/www/lvfs/admin/env/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 lvfs:app
 ExecStart=/var/www/lvfs/admin/env/bin/gunicorn --workers 3 -m 007 lvfs:app
-ExecReload=/bin/kill -s HUP $MAINPID
+ExecReload=/bin/kill -s HUP \$MAINPID
 KillMode=mixed
 TimeoutStopSec=5
 PrivateTmp=true
