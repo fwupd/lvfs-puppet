@@ -490,7 +490,7 @@ ExecStart=/bin/sh -c '\${CELERY_BIN} multi start \${CELERYD_NODES} \
   --queues=\${CELERYD_QUEUES} \
   --logfile=\${CELERYD_LOG_FILE} \
   --loglevel=\${CELERYD_LOG_LEVEL} \
-  ${CELERYD_OPTS}'
+  \${CELERYD_OPTS}'
 ExecStop=/bin/sh -c '\${CELERY_BIN} multi stopwait \${CELERYD_NODES} \
   --pidfile=\${CELERYD_PID_FILE}'
 ExecReload=/bin/sh -c '\${CELERY_BIN} multi restart \${CELERYD_NODES} \
