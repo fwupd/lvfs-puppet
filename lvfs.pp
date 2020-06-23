@@ -228,10 +228,6 @@ cron { 's3cmd-downloads':
 #  ensure => installed,
 #}
 
-# use gunicorn
-package { 'python3-gunicorn':
-    ensure => installed,
-}
 file { '/var/log/lvfs':
     ensure => 'directory',
     owner => 'lvfs',
@@ -271,7 +267,7 @@ file { '/etc/tmpfiles.d/lvfs.conf':
 service { 'lvfs':
     ensure => 'running',
     enable => true,
-    require => [ Group['lvfs'], Package['python3-gunicorn'] ],
+    require => [ Group['lvfs'] ],
 }
 
 exec { 'nginx-lvfs-membership':
@@ -419,7 +415,7 @@ http {
 service { 'nginx':
     ensure => 'running',
     enable => true,
-    require => [ Package['nginx'], Package['python3-gunicorn'] ],
+    require => [ Package['nginx'] ],
 }
 #package { 'rdfind':
 #    ensure => installed,
@@ -629,7 +625,7 @@ After=network.target
 User=lvfs
 WorkingDirectory=/var/www/lvfs/admin
 Environment=\"PATH=/var/www/lvfs/admin/env/bin\"
-ExecStart=/usr/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 lvfs:app
+ExecStart=/var/www/lvfs/admin/env/bin/pip/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 lvfs:app
 
 [Install]
 WantedBy=multi-user.target
