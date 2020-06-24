@@ -137,7 +137,7 @@ SHARD_DIR = '/mnt/firmware/shards'
 HWINFO_DIR = '/var/www/lvfs/admin/hwinfo'
 CERTTOOL = 'flatpak run --command=certtool --filesystem=/tmp --filesystem=/var/www/lvfs/pkcs7 org.freedesktop.fwupd'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
-SQLALCHEMY_DATABASE_URI = 'postgresql://${dbusername}:${dbpassword}@${dbserver}/lvfs'
+SQLALCHEMY_DATABASE_URI = 'postgresql://${dbusername}:${dbpassword}@${dbserver}/${dbdatabase}'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ENGINE_OPTIONS = {
     'pool_pre_ping': True,
@@ -617,6 +617,12 @@ SELINUXTYPE=targeted
 }
 
 # gunicorn
+file { '/run/lvfs':
+    ensure => 'directory',
+    owner => 'lvfs',
+    group => 'lvfs',
+    require => [ User['lvfs'] ],
+}
 file { '/etc/systemd/system/lvfs.socket':
     ensure => "file",
     content => "# Managed by Puppet, DO NOT EDIT
@@ -635,6 +641,7 @@ User=nginx
 [Install]
 WantedBy=sockets.target
 ",
+    require => [ File['/run/lvfs'] ],
 }
 file { '/etc/systemd/system/lvfs.service':
     ensure => "file",
@@ -649,9 +656,8 @@ User=lvfs
 Group=lvfs
 RuntimeDirectory=lvfs
 WorkingDirectory=/var/www/lvfs/admin
-#Environment=\"PATH=/var/www/lvfs/admin/env/bin\"
-#ExecStart=/var/www/lvfs/admin/env/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 lvfs:app
-ExecStart=/var/www/lvfs/admin/env/bin/gunicorn --workers 3 -m 007 lvfs:app
+Environment=\"PATH=/var/www/lvfs/admin/env/bin\"
+ExecStart=/bin/sh -c '/var/www/lvfs/admin/env/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 lvfs:app'
 ExecReload=/bin/kill -s HUP \$MAINPID
 KillMode=mixed
 TimeoutStopSec=5

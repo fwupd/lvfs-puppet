@@ -2,6 +2,7 @@
 $dbusername = 'lvfs'
 $dbpassword = 'lvfs'
 $dbserver = 'localhost'
+$dbdatabase = 'lvfs'
 $lvfs_secret_key = 'xxx'
 $lvfs_revision = 'master'
 $munin_username = 'admin'
