@@ -1,55 +1,55 @@
 file { '/var/www':
-    ensure   => 'directory',
+    ensure => 'directory',
 }
 file { '/var/www/lvfs':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ File['/var/www'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'uwsgi',
+    group => 'uwsgi',
+    require => [ File['/var/www'], Package['uwsgi'] ],
 }
 vcsrepo { '/var/www/lvfs/admin':
-    ensure   => latest,
+    ensure => latest,
     provider => git,
     revision => $lvfs_revision,
-    source   => 'https://github.com/hughsie/lvfs-website.git',
-    user     => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ File['/var/www/lvfs'], Package['uwsgi']],
+    source => 'https://github.com/hughsie/lvfs-website.git',
+    user => 'uwsgi',
+    group => 'uwsgi',
+    require => [ File['/var/www/lvfs'], Package['uwsgi']],
 }
 file { '/mnt/firmware/deleted':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ Vcsrepo['/var/www/lvfs/admin'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'uwsgi',
+    group => 'uwsgi',
+    require => [ Vcsrepo['/var/www/lvfs/admin'], Package['uwsgi'] ],
 }
 file { '/var/www/lvfs/admin/hwinfo':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ Vcsrepo['/var/www/lvfs/admin'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'uwsgi',
+    group => 'uwsgi',
+    require => [ Vcsrepo['/var/www/lvfs/admin'], Package['uwsgi'] ],
 }
 file { '/mnt/firmware/downloads':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ File['/var/www/lvfs'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'uwsgi',
+    group => 'uwsgi',
+    require => [ File['/var/www/lvfs'], Package['uwsgi'] ],
 }
 file { '/mnt/firmware/shards':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => [ File['/var/www/lvfs'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'uwsgi',
+    group => 'uwsgi',
+    require => [ File['/var/www/lvfs'], Package['uwsgi'] ],
 }
 file { '/var/www/lvfs/backup':
-    ensure  => 'directory',
-    owner   => 'uwsgi',
-    group   => 'uwsgi',
-    require  => [ File['/var/www/lvfs'], Package['uwsgi'] ],
+    ensure => 'directory',
+    owner => 'uwsgi',
+    group => 'uwsgi',
+    require => [ File['/var/www/lvfs'], Package['uwsgi'] ],
 }
 file { '/var/www/lvfs/admin/lvfs/custom.cfg':
-    ensure  => 'file',
-    owner   => 'uwsgi',
-    group   => 'uwsgi',
+    ensure => 'file',
+    owner => 'uwsgi',
+    group => 'uwsgi',
     content => "# Managed by Puppet, DO NOT EDIT
 import os
 DEBUG = False
@@ -115,15 +115,15 @@ package { 'gobject-introspection-devel':
     ensure => installed,
 }
 exec { 'virtualenv_create':
-    command     => '/usr/bin/virtualenv-3.6 /usr/lib/lvfs/env36',
+    command => '/usr/bin/virtualenv-3.6 /usr/lib/lvfs/env36',
     refreshonly => true,
-    require     => [ Package['python36-virtualenv'] ],
+    require => [ Package['python36-virtualenv'] ],
 }
 exec { 'pip_requirements_install':
-    command     => '/usr/lib/lvfs/env36/bin/pip3 install -r /var/www/lvfs/admin/requirements.txt',
-    path        => '/usr/bin',
+    command => '/usr/lib/lvfs/env36/bin/pip3 install -r /var/www/lvfs/admin/requirements.txt',
+    path => '/usr/bin',
     refreshonly => true,
-    require     => [ Vcsrepo['/var/www/lvfs/admin'], Package['python3-pip'], Exec['virtualenv_create'] ],
+    require => [ Vcsrepo['/var/www/lvfs/admin'], Package['python3-pip'], Exec['virtualenv_create'] ],
 }
 
 # required for the PKCS#7 support
@@ -133,9 +133,9 @@ package { 'gnutls-utils':
 
 cron { 'shards-hardlink':
     command => 'rdfind -makehardlinks true -makesymlinks false /mnt/firmware/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
-    user    => 'uwsgi',
-    minute  => 0,
-    hour    => 3,
+    user => 'uwsgi',
+    minute => 0,
+    hour => 3,
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 package { 's3cmd':
@@ -143,9 +143,9 @@ package { 's3cmd':
 }
 cron { 's3cmd-downloads':
     command => 's3cmd sync /mnt/firmware/downloads s3://lvfs >> /var/log/uwsgi/lvfs-downloads.log 2>&1',
-    user    => 'root',
-    minute  => 0,
-    hour    => 4,
+    user => 'root',
+    minute => 0,
+    hour => 4,
 }
 
 # set up the database
@@ -164,10 +164,10 @@ package { 'uwsgi':
     ensure => installed,
 }
 file { '/var/log/uwsgi':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => Package['uwsgi'],
+    ensure => 'directory',
+    owner => 'uwsgi',
+    group => 'uwsgi',
+    require => Package['uwsgi'],
 }
 file { '/etc/tmpfiles.d/uwsgi.conf':
     ensure => "file",
@@ -176,9 +176,9 @@ file { '/etc/tmpfiles.d/uwsgi.conf':
 }
 
 file { '/etc/uwsgi.d/lvfs.ini':
-    ensure   => "file",
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
+    ensure => "file",
+    owner => 'uwsgi',
+    group => 'uwsgi',
     content => "# Managed by Puppet, DO NOT EDIT
 [uwsgi]
 chdir = /var/www/lvfs/admin
@@ -206,7 +206,7 @@ service { 'uwsgi':
 }
 
 exec { 'nginx-uwsgi-membership':
-    unless  => '/bin/grep -q "uwsgi\\S*nginx" /etc/group',
+    unless => '/bin/grep -q "uwsgi\\S*nginx" /etc/group',
     command => '/sbin/usermod -aG uwsgi nginx',
     require => Package['uwsgi'],
 }
@@ -364,17 +364,17 @@ package { 'munin-plugins-ruby':
     ensure => installed,
 }
 service { 'munin-node':
-    ensure   => 'running',
-    enable   => true,
-    require  => Package["munin"],
+    ensure => 'running',
+    enable => true,
+    require => Package["munin"],
 }
 package { 'httpd-tools':
     ensure => installed,
 }
 exec { "munin-htpasswd":
-    command     => "/usr/bin/htpasswd -cb /etc/munin/munin-htpasswd ${munin_username} ${munin_password}",
-    unless      => "/usr/bin/test -s /etc/munin/munin-htpasswd",
-    require     => [ Package["munin"], Package['httpd-tools'] ],
+    command => "/usr/bin/htpasswd -cb /etc/munin/munin-htpasswd ${munin_username} ${munin_password}",
+    unless => "/usr/bin/test -s /etc/munin/munin-htpasswd",
+    require => [ Package["munin"], Package['httpd-tools'] ],
 }
 file { '/etc/munin/conf.d/local.conf':
     ensure => "file",
@@ -409,9 +409,9 @@ package { 'redis':
     ensure => installed,
 }
 service { 'redis':
-    ensure   => 'running',
-    enable   => true,
-    require  => Package["redis"],
+    ensure => 'running',
+    enable => true,
+    require => Package["redis"],
 }
 file { '/etc/tmpfiles.d/celery.conf':
     ensure => "file",
@@ -422,19 +422,19 @@ d /var/log/celery 0755 uwsgi uwsgi -
     require => Exec['pip_requirements_install'],
 }
 file { '/etc/conf.d':
-    ensure   => 'directory',
+    ensure => 'directory',
 }
 file { '/var/run/celery':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => Package['uwsgi'],
+    ensure => 'directory',
+    owner => 'uwsgi',
+    group => 'uwsgi',
+    require => Package['uwsgi'],
 }
 file { '/var/log/celery':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => Package['uwsgi'],
+    ensure => 'directory',
+    owner => 'uwsgi',
+    group => 'uwsgi',
+    require => Package['uwsgi'],
 }
 file { '/etc/conf.d/celery':
     ensure => "file",
@@ -503,9 +503,9 @@ WantedBy=multi-user.target
     require => [ Exec['pip_requirements_install'], Package['uwsgi'] ],
 }
 service { 'celery':
-    ensure   => 'running',
-    enable   => true,
-    require  => File["/etc/systemd/system/celery.service"],
+    ensure => 'running',
+    enable => true,
+    require => File["/etc/systemd/system/celery.service"],
 }
 
 file { '/etc/systemd/system/celerybeat.service':
@@ -534,9 +534,9 @@ WantedBy=multi-user.target
     require => [ Exec['pip_requirements_install'], Package['uwsgi'] ],
 }
 service { 'celerybeat':
-    ensure   => 'running',
-    enable   => true,
-    require  => File["/etc/systemd/system/celerybeat.service"],
+    ensure => 'running',
+    enable => true,
+    require => File["/etc/systemd/system/celerybeat.service"],
 }
 
 file { '/etc/systemd/system/flower.service':
@@ -570,9 +570,9 @@ persistent = True
     require => Vcsrepo['/var/www/lvfs/admin'],
 }
 service { 'flower':
-    ensure   => 'running',
-    enable   => true,
-    require  => File["/etc/systemd/system/flower.service"],
+    ensure => 'running',
+    enable => true,
+    require => File["/etc/systemd/system/flower.service"],
 }
 
 # logrotate
@@ -640,12 +640,12 @@ service { 'clamd@scan':
 
 # fixes permissions after a key has been imported
 file { '/var/www/lvfs/.gnupg':
-    ensure   => 'directory',
-    owner    => 'uwsgi',
-    group    => 'uwsgi',
-    require  => File['/var/www/lvfs'],
+    ensure => 'directory',
+    owner => 'uwsgi',
+    group => 'uwsgi',
+    require => File['/var/www/lvfs'],
 }
 exec { 'gnupg-uwsgi-chown':
-    command  => "/bin/chown -R uwsgi:uwsgi /var/www/lvfs/.gnupg/",
-    require  => File['/var/www/lvfs/.gnupg'],
+    command => "/bin/chown -R uwsgi:uwsgi /var/www/lvfs/.gnupg/",
+    require => File['/var/www/lvfs/.gnupg'],
 }
