@@ -324,9 +324,9 @@ http {
         client_max_body_size 80M;
 
         # only allow http:// URIs
-        if (\$scheme != \"https\") {
-            return 301 https://\$server_name\$request_uri;
-        }
+#        if (\$scheme != \"https\") {
+#            return 301 https://\$server_name\$request_uri;
+#        }
 
         # the www is not required
         if (\$host ~ '^www\.') {
@@ -338,10 +338,10 @@ http {
 
         # support SSL using Let's Encrypt
         listen       443 ssl;
-        ssl_certificate /etc/letsencrypt/live/${server_fqdn}/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/${server_fqdn}/privkey.pem;
-        include /etc/letsencrypt/options-ssl-nginx.conf;
-        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+#        ssl_certificate /etc/letsencrypt/live/${server_fqdn}/fullchain.pem;
+#        ssl_certificate_key /etc/letsencrypt/live/${server_fqdn}/privkey.pem;
+#        include /etc/letsencrypt/options-ssl-nginx.conf;
+#        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
         location /.well-known/ {
             alias /var/www/.well-known/;
         }
@@ -374,7 +374,7 @@ http {
 
         # Only connect to this site via HTTPS
         # https://wiki.mozilla.org/Security/Guidelines/Web_Security#HTTP_Strict_Transport_Security
-        add_header Strict-Transport-Security \"max-age=63072000; includeSubDomains; preload\";
+#        add_header Strict-Transport-Security \"max-age=63072000; includeSubDomains; preload\";
 
         # Block pages from loading when they detect reflected XSS attacks
         # https://wiki.mozilla.org/Security/Guidelines/Web_Security#Content_Security_Policy
