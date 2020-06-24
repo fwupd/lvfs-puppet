@@ -726,7 +726,7 @@ ScanArchive yes
 MaxFileSize 100M
 MaxEmbeddedPE 100M
 ",
-    require => Package['clamav'],
+    require => Package['clamd'],
 }
 service { 'clamd@scan':
     ensure => 'running',
