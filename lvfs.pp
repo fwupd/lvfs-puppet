@@ -220,14 +220,6 @@ cron { 's3cmd-downloads':
     hour => 4,
 }
 
-# set up the database
-#package { 'postgresql-server':
-#  ensure => installed,
-#}
-#package { 'postgresql-devel':
-#  ensure => installed,
-#}
-
 file { '/var/log/lvfs':
     ensure => 'directory',
     owner => 'lvfs',
@@ -238,41 +230,6 @@ file { '/etc/tmpfiles.d/lvfs.conf':
     ensure => "file",
     content => "D /run/lvfs 0770 lvfs lvfs -",
     require => Group['lvfs'],
-}
-
-#file { '/etc/uwsgi.d/lvfs.ini':
-#    ensure => "file",
-#    owner => 'uwsgi',
-#    group => 'uwsgi',
-#    content => "# Managed by Puppet, DO NOT EDIT
-#[uwsgi]
-#chdir = /var/www/lvfs/admin
-#virtualenv = /var/www/lvfs/admin/env
-#module = lvfs:app
-#plugins = python36
-#uid = uwsgi
-#gid = uwsgi
-#socket = /run/uwsgi/%n.socket
-#chmod-socket = 660
-#logto = /var/log/uwsgi/%n.log
-#stats = 127.0.0.1:9191
-#processes = 4
-#buffer-size = 65536
-#enable-threads = true
-#harakiri = 180
-#lazy-apps = true
-#",
-#    require => Group['lvfs'],
-#}
-service { 'lvfs':
-    ensure => 'running',
-    enable => true,
-    require => [ Group['lvfs'] ],
-}
-service { 'lvfs.socket':
-    ensure => 'running',
-    enable => true,
-    require => [ Group['lvfs'] ],
 }
 
 exec { 'nginx-lvfs-membership':
@@ -631,17 +588,17 @@ Description=lvfs socket
 
 [Socket]
 ListenStream=/run/lvfs/lvfs.socket
-# Our service won't need permissions for the socket, since it
-# inherits the file descriptor by socket activation
-# only the nginx daemon will need access to the socket
 User=nginx
-# Optionally restrict the socket permissions even more.
-# Mode=600
 
 [Install]
 WantedBy=sockets.target
 ",
     require => [ File['/run/lvfs'] ],
+}
+service { 'lvfs.socket':
+    ensure => 'running',
+    enable => true,
+    require => [ File['/etc/systemd/system/lvfs.socket'] ],
 }
 file { '/etc/systemd/system/lvfs.service':
     ensure => "file",
@@ -672,6 +629,11 @@ PrivateTmp=true
 [Install]
 WantedBy=multi-user.target
 ",
+}
+service { 'lvfs':
+    ensure => 'running',
+    enable => true,
+    require => [ Exec['pip_requirements_install'], File['/etc/systemd/system/lvfs.socket'] ],
 }
 
 file { '/etc/systemd/system/flower.service':
@@ -740,12 +702,6 @@ file { '/etc/logrotate.d/lvfs':
 package { 'clamav-update':
     ensure => installed,
 }
-package { 'clamav-data':
-    ensure => installed,
-}
-package { 'clamav':
-    ensure => installed,
-}
 package { 'clamd':
     ensure => installed,
 }
@@ -776,7 +732,7 @@ MaxEmbeddedPE 100M
 service { 'clamd@scan':
     ensure => 'running',
     enable => true,
-    require => [ Package['clamav'], File['/etc/clamd.d/scan.conf'] ],
+    require => [ Package['clamd'], File['/etc/clamd.d/scan.conf'] ],
 }
 
 # fixes permissions after a key has been imported
