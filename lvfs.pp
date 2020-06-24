@@ -398,8 +398,8 @@ http {
             expires 20m;
         }
         location / {
-            include proxy_params;
-            proxy_pass unix:///run/lvfs/lvfs.socket;
+#            include proxy_params;
+            proxy_pass http://unix:///run/lvfs/lvfs.socket;
         }
 
         error_page 404 /404.html;
@@ -657,7 +657,13 @@ Group=lvfs
 RuntimeDirectory=lvfs
 WorkingDirectory=/var/www/lvfs/admin
 Environment=\"PATH=/var/www/lvfs/admin/env/bin\"
-ExecStart=/bin/sh -c '/var/www/lvfs/admin/env/bin/gunicorn --workers 3 --bind unix:/run/lvfs/lvfs.socket -m 007 lvfs:app'
+ExecStart=/bin/sh -c '/var/www/lvfs/admin/env/bin/gunicorn \
+  --capture-output \
+  --access-logfile /var/log/lvfs/access.log \
+  --error-logfile /var/log/lvfs/error.log \
+  --workers 3 \
+  --bind unix:/run/lvfs/lvfs.socket \
+  -m 007 lvfs:app'
 ExecReload=/bin/kill -s HUP \$MAINPID
 KillMode=mixed
 TimeoutStopSec=5
