@@ -746,6 +746,9 @@ package { 'clamav-data':
 package { 'clamav':
     ensure => installed,
 }
+package { 'clamd':
+    ensure => installed,
+}
 exec { 'lvfs virusgroup membership':
     unless => "/bin/getent group virusgroup|/bin/cut -d: -f4|/bin/grep -q lvfs",
     command => "/usr/sbin/usermod -a -G virusgroup lvfs",
