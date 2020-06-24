@@ -355,7 +355,6 @@ http {
             expires 20m;
         }
         location / {
-#            include proxy_params;
             proxy_pass http://unix:///run/lvfs/lvfs.socket;
         }
 
