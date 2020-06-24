@@ -186,6 +186,9 @@ package { 'GeoIP-devel':
 package { 'libgcab1':
     ensure => installed,
 }
+package { 'libpq-devel':
+    ensure => installed,
+}
 exec { 'virtualenv_create':
     command => '/usr/bin/virtualenv-3 /var/www/lvfs/admin/env',
     refreshonly => true,
@@ -597,7 +600,7 @@ WantedBy=sockets.target
 service { 'lvfs.socket':
     ensure => 'running',
     enable => true,
-    require => [ File['/etc/systemd/system/lvfs.socket'] ],
+    require => [ File['/etc/systemd/system/lvfs.socket'], File['/run/lvfs'] ],
 }
 file { '/etc/systemd/system/lvfs.service':
     ensure => "file",
