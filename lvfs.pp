@@ -193,9 +193,7 @@ logto = /var/log/uwsgi/%n.log
 stats = 127.0.0.1:9191
 processes = 4
 buffer-size = 65536
-enable-threads = true
 harakiri = 180
-lazy-apps = true
 ",
     require => Package['uwsgi'],
 }
