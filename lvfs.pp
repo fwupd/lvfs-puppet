@@ -34,7 +34,7 @@ file { '/mnt/firmware/downloads':
     group => 'uwsgi',
     require => [ File['/var/www/lvfs'], Package['uwsgi'] ],
 }
-file { '/mnt/firmware/shards':
+file { '/mnt/shards':
     ensure => 'directory',
     owner => 'uwsgi',
     group => 'uwsgi',
@@ -67,7 +67,7 @@ PORT = 80
 DOWNLOAD_DIR = '/mnt/firmware/downloads'
 UPLOAD_DIR = '/var/www/lvfs/admin/uploads'
 RESTORE_DIR = '/mnt/firmware/deleted'
-SHARD_DIR = '/mnt/firmware/shards'
+SHARD_DIR = '/mnt/shards'
 HWINFO_DIR = '/var/www/lvfs/admin/hwinfo'
 CERTTOOL = 'flatpak run --command=certtool --filesystem=/tmp --filesystem=/var/www/lvfs/pkcs7 org.freedesktop.fwupd'
 KEYRING_DIR = '/var/www/lvfs/.gnupg'
@@ -132,7 +132,7 @@ package { 'gnutls-utils':
 }
 
 cron { 'shards-hardlink':
-    command => 'rdfind -makehardlinks true -makesymlinks false /mnt/firmware/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
+    command => 'rdfind -makehardlinks true -makesymlinks false /mnt/shards >> /var/log/uwsgi/lvfs-hardlink.log 2>&1',
     user => 'uwsgi',
     minute => 0,
     hour => 3,
