@@ -11,7 +11,7 @@ vcsrepo { '/var/www/lvfs/admin':
     ensure => latest,
     provider => git,
     revision => $lvfs_revision,
-    source => 'https://github.com/hughsie/lvfs-website.git',
+    source => 'https://gitlab.com/fwupd/lvfs-website.git',
     user => 'uwsgi',
     group => 'uwsgi',
     require => [ File['/var/www/lvfs'], Package['uwsgi']],
